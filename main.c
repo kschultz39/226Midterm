@@ -42,8 +42,8 @@ enum states{
     BLUE,  //Switch to BLUE, control PWM, RETURN TO LGIHTS
     
     //RUN OUTSIDE STATE MACHINE AS IF STATEMENTS TO CONTROL LIGHTS OFF AND ON
-    LIGHTS OFF,  //turns the lights off
-    LIGHTS ON    //Turns lights on
+    LIGHTSOFF,  //turns the lights off
+    LIGHTSON    //Turns lights on
 };
 
 void main(void)
@@ -93,10 +93,10 @@ void main(void)
             state GREEN
             {
             }
-            state LIGHTS OFF:
+            state LIGHTSOFF:
             {
             }
-            state LIGHTS ON:
+            state LIGHTSON:
             {
             }
         
