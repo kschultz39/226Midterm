@@ -76,6 +76,9 @@ void main(void)
                 commandWrite(0x0C); //getting rid of blinking cursor
                     
                 int i;
+                int value; //the number passed from the keypad to this program
+                static int pincode[3];
+                 
                     char line1[]= "   Motor Menu    ";
                     char line2[]= "Enter motor speed:    ";
 
@@ -96,10 +99,36 @@ void main(void)
                     commandWrite(0x90);
                     dela_ms(100);
                 
-                for(i=0; i<16
+               //Section that reads in value from pressed keypad
+                 
+                 value = read_keypad(); //takes in a value from the key_pad being pressed
+                 
+                 if((value <=9 || value == 11) && value > 0)//If an entry is pressed 0-9, the number will be stored in the program.
+                    {
+
+                            int i;
+
+
+                               for(i=0; i<2; i++)
+                                     {
+                                           pincode[i] =pincode[i+1];
+                                      }
+
+                                   pincode[2] = entry;
+
+                       }
+                 
+                 //NEED TO NOW HAVE THIS VALUE CYCLE INTO PMW 
                 
                 
                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
                 
             }
                 
