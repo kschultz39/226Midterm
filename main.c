@@ -41,7 +41,7 @@ void main(void)
 
     enum states state= DEFAULT;
 
-    /*while(1)
+    while(1)
     {
         switch (state)
         {
@@ -53,17 +53,51 @@ void main(void)
             {
 
             }
+                
+                
+                
             state MOTOR:
             {
+                commandWrite(0x0C); //getting rid of blinking cursor
+                    
+                int i;
+                    char line1[]= "   Motor Menu    ";
+                    char line2[]= "Enter motor speed:    ";
 
+
+                     for(i=0; i<16; i++)
+                     {
+                       dataWrite(line1[i]);
+                      }
+
+                    commandWrite(0xC0);
+                    delay_ms(100);
+                
+                     for(i=0; i<16; i++)
+                     {
+                          dataWrite(line2[i]);
+                      }
+                
+                    commandWrite(0x90);
+                    dela_ms(100);
+                
+                for(i=0; i<16
+                
+                
+                
+                
             }
+                
+                
+                
+                
             state LIGHTS:
             {
 
             }
         }
     }
-*/
+
 
 
 
