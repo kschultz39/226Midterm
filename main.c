@@ -25,10 +25,25 @@ void LightSubmenu(void);
 
 
 enum states{
-    DEFAULT,
-    DOOR,
-    MOTOR,
-    LIGHTS
+    DEFAULT,//Default state
+    
+    //SECTION OF DOOR
+    DOOR,//switch do garage door, RETURN TO DEFAULT WHEN PROMPTED 
+    OPEN, //Open door for state door, RETURN TO DOOR
+    CLOSE, //Close door for state door, RETURN TO DOOR
+    
+    //SECTION OF MOTOR
+    MOTOR, //Select PWM for MOTOR, RETURN TO DEFAULT WHEN PROMPTED
+    
+    //SECTION OF LIGHTS
+    LIGHTS, //Swith to lights, RETURN TO DEFAULT WHEN PROMPTED
+    RED, //switch to RED, control PWM, RETURN TO LGIHTS
+    GREEN,  //Switch to GREEN, control PWM, RETURN TO LGIHTS
+    BLUE,  //Switch to BLUE, control PWM, RETURN TO LGIHTS
+    
+    //RUN OUTSIDE STATE MACHINE AS IF STATEMENTS TO CONTROL LIGHTS OFF AND ON
+    LIGHTS OFF,  //turns the lights off
+    LIGHTS ON    //Turns lights on
 };
 
 void main(void)
@@ -523,3 +538,4 @@ int read_keypad()
 }
 
 //HI, TEST FOR COMMENTS
+//NATES BRANCH, TEST 
