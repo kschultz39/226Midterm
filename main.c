@@ -68,6 +68,14 @@ void main(void)
             {
 
             }
+            
+            state OPEN:
+            {
+            }
+            state CLOSED:
+            {
+            }
+            
             state MOTOR:
             {
 
@@ -76,6 +84,24 @@ void main(void)
             {
 
             }
+            state RED:
+            {
+            }
+            state BLUE:
+            {
+            }
+            state GREEN
+            {
+            }
+            state LIGHTS OFF:
+            {
+            }
+            state LIGHTS ON:
+            {
+            }
+        
+    
+   
         }
     }
 */
