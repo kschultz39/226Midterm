@@ -521,3 +521,5 @@ int read_keypad()
     //Return the value calculated by the formula above to be displayed to the user
     return value;
 }
+
+//HI, TEST FOR COMMENTS
