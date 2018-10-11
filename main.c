@@ -63,6 +63,16 @@ void main(void)
             state DEFAULT:
             {
                 PrintMenu();
+                value= read_keypad();
+
+                if(value ==1)
+                    state= DOOR;
+                if(value==2)
+                    state= MOTOR;
+                if(value==3)
+                    state= LIGHTS;
+                if(value==0 || value>=4 && value<=12)
+                    state= DEFAULT;
             }
             state DOOR:
             {
