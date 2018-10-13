@@ -20,9 +20,13 @@ void PrintMenu(void);
 
 void PrintMenu(void);
 void DoorSubmenu(void);
+void PrintDoorOpen(void);
+void PrintDoorClosed(void);
 void MotorSubmenu(void);
 void LightSubmenu(void);
-
+void PrintRED(void);
+void PrintGREEN(void);
+void PrintBLUE(void);
 void PinEnables(void);
 
 enum states{
@@ -58,12 +62,23 @@ void main(void)
 
     //enum states state= DEFAULT;
    PrintMenu();
-   delay_ms(100);
+   delay_ms(1000);
    DoorSubmenu();
-   delay_ms(100);
+   delay_ms(1000);
+   PrintDoorOpen();
+   delay_ms(1000);
+   PrintDoorClosed();
+   delay_ms(1000);
    MotorSubmenu();
-   delay_ms(100);
+   delay_ms(1000);
    LightSubmenu();
+   delay_ms(1000);
+   PrintRED();
+   delay_ms(1000);
+   PrintGREEN();
+   delay_ms(1000);
+   PrintBLUE();
+
 
     /*while(1)
     {
@@ -267,6 +282,60 @@ void LightSubmenu(void)
         dataWrite(line4[i]);
      }
 }
+
+void PrintDoorOpen(void)
+{
+    commandWrite(0x01);
+    int i;
+    char option[]= "    Door Open    ";
+    for(i=0; i<16; i++)
+    {
+        dataWrite(option[i]);
+    }
+}
+void PrintDoorClosed(void)
+{
+    commandWrite(0x01);
+    int i;
+    char option[]= "  Door Closed   ";
+    for(i=0; i<16; i++)
+    {
+        dataWrite(option[i]);
+    }
+}
+
+void PrintRED(void)
+{
+    commandWrite(0x01);
+    int i;
+    char option[]= "    Red LED     ";
+    for(i=0; i<16; i++)
+    {
+        dataWrite(option[i]);
+    }
+}
+
+void PrintBLUE(void)
+{
+    commandWrite(0x01);
+    int i;
+    char option[]= "    Blue LED     ";
+    for(i=0; i<16; i++)
+    {
+        dataWrite(option[i]);
+    }
+}
+void PrintGREEN(void)
+{
+    commandWrite(0x01);
+    int i;
+    char option[]= "    Green LED     ";
+    for(i=0; i<16; i++)
+    {
+        dataWrite(option[i]);
+    }
+}
+
 
 //This function goes through the entire initialization sequence as shown in Figure 4
 void LCD_init(void)
