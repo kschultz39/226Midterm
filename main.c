@@ -58,6 +58,12 @@ void main(void)
 
     //enum states state= DEFAULT;
    PrintMenu();
+   delay_ms(100);
+   DoorSubmenu();
+   delay_ms(100);
+   MotorSubmenu();
+   delay_ms(100);
+   LightSubmenu();
 
     /*while(1)
     {
@@ -175,6 +181,7 @@ void PrintMenu(void)
 }
 void DoorSubmenu(void)
 {
+    commandWrite(0x01);
     commandWrite(0x0C);
     int i;
     char line1[]= "   Door Menu    ";
@@ -204,6 +211,7 @@ void DoorSubmenu(void)
 }
 void MotorSubmenu(void)
 {
+    commandWrite(0x01);
     commandWrite(0x0C);
     int i;
     char line1[]= "   Motor Menu    ";
@@ -225,12 +233,13 @@ void MotorSubmenu(void)
 
 void LightSubmenu(void)
 {
+    commandWrite(0x01);
     commandWrite(0x0C);
     int i;
-    char line1[]= "   Light Submenu    ";
-    char line2[]= "1. Red LED";
-    char line3[]= "2. Blue LED";
-    char line4[]= "3. Green LED";
+    char line1[]= "  Light Submenu    ";
+    char line2[]= "1. Red LED           ";
+    char line3[]= "2. Blue LED           ";
+    char line4[]= "3. Green LED           ";
 
 
      for(i=0; i<16; i++)
