@@ -100,14 +100,12 @@ void main(void)
             state DOOR:
             {
             }
-
             state OPEN:
             {
             }
             state CLOSED:
             {
             }
-
             state MOTOR:
             {
             }
@@ -129,9 +127,6 @@ void main(void)
             state LIGHTSON:
             {
             }
-
-
-
         }
     }
 */
@@ -149,9 +144,9 @@ void PinEnables(void)
     P3->DIR |= (BIT2|BIT3); //sets P3.2 and P3.3 as OUTPUT
     //P3->OUT &= ~(BIT2|BIT3); //sets P3.2 and P3.3 to 0 for RS RW =0
 
-    P4->SEL0 &= ~(BIT4|BIT5|BIT6|BIT7); //sets (DB4-DB7) P4.4, P4.5, P4.5, P4.6, P4.7 as GPIO
-    P4->SEL1 &= ~(BIT4|BIT5|BIT6|BIT7);
-    P4->DIR |= (BIT4|BIT5|BIT6|BIT7); //sets pins 4.4-4.7 to OUTPUT
+    P2->SEL0 &= ~(BIT4|BIT5|BIT6|BIT7); //sets (DB4-DB7) P2.4, P2.5, P2.5, P2.6, P2.7 as GPIO
+    P2->SEL1 &= ~(BIT4|BIT5|BIT6|BIT7);
+    P2->DIR |= (BIT4|BIT5|BIT6|BIT7); //sets pins 4.4-4.7 to OUTPUT
 
 
     P6->SEL0 &=~BIT4; //sets P6.4 to GPIO (ENABLE PIN)
@@ -406,8 +401,8 @@ void PulseEnablePin(void)
 //Pushes 1 nibble onto the data pins and pulses the Enable pin
 void pushNibble (uint8_t nibble)
 {
-    P4->OUT &= ~(BIT4|BIT5|BIT6|BIT7); //clears values
-    P4->OUT |= ((nibble & 0x0F)<<4);
+    P2->OUT &= ~(BIT4|BIT5|BIT6|BIT7); //clears values
+    P2->OUT |= ((nibble & 0x0F)<<4);
    // delay_micro(100);
 
     PulseEnablePin();
@@ -456,3 +451,4 @@ void SysTick_Init(void)
     SysTick -> VAL= 0; //any write to current value clears it
     SysTick -> CTRL= 0x00000005; //enable SysTIck, CPU clk, no interrupts
 }
+
