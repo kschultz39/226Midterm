@@ -451,4 +451,3 @@ void SysTick_Init(void)
     SysTick -> VAL= 0; //any write to current value clears it
     SysTick -> CTRL= 0x00000005; //enable SysTIck, CPU clk, no interrupts
 }
-
