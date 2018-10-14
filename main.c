@@ -128,8 +128,17 @@ void main(void)
             {
             }
         }
-    }
-*/
+    }*/
+    int value ;
+
+         while(1)
+         {
+            value = read_keypad(); //inputs the calculated value from the keypad into the int value to be used in other parts of the program.
+            write_result(value);//Will print the result to the user
+
+
+             //collect_input(value); //stores the value to
+         }
 
 
 
@@ -153,6 +162,13 @@ void PinEnables(void)
     P6->SEL1 &=~BIT4; //sets P6.4 to GPIO (ENABLE PIN)
     P6->DIR |= BIT4; //sets as output
     P6->OUT &= ~BIT4; //sets Enable pin to 0 initially
+
+    //Pin enables for the Keypad
+    P4->SEL0 &= ~(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); //sets up P4 with 1-7
+    P4->SEL1 &= ~(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // sets up P4 with 1-7
+    P4->DIR &= ~(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // sets up P4 with 1-7
+    P4->REN |= (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); //enable internal resistor on P4 1-7
+    P4->OUT |=  (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // make the internal resistor pull up to 3.3V (default state is a 1 now)
 }
 void PrintMenu(void)
 {
@@ -451,3 +467,238 @@ void SysTick_Init(void)
     SysTick -> VAL= 0; //any write to current value clears it
     SysTick -> CTRL= 0x00000005; //enable SysTIck, CPU clk, no interrupts
 }
+int read_keypad();
+void write_result(int result);
+
+void reset(void);
+void collect_input(int entry);
+
+
+
+
+
+
+
+int read_keypad()
+{
+
+
+    int value = -1;
+
+
+    P4-> OUT &= ~BIT3; ///sets column 0 to 0
+    P4-> DIR |= BIT3;
+    {
+        delay_ms(30);
+        if(!(P4->IN & BIT7)) //Row 0, This is the number 1 on the keypad, value of 1
+        {
+            while(!((P4->IN & BIT7) == BIT7)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+               delay_ms(30);
+               //printf("nothing is pressed\n");
+            }
+
+            value=1;
+        }
+
+        if(!(P4->IN & BIT6))  //Row 1, this is the number 4 on the keypad, value of 4
+        {
+            while(!((P4->IN & BIT6) == BIT6)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+                delay_ms(30);
+                //printf("nothing is pressed\n");
+            }
+
+            value=4;
+        }
+        if(!(P4->IN & BIT5))  //Row 2, this is the number 7 on the keypad, value of 7
+        {
+            while(!((P4->IN & BIT5) == BIT5)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+                delay_ms(30);
+                //printf("nothing is pressed\n");
+            }
+
+            value=7;
+        }
+        if(!(P4->IN & BIT4)) //Row 3, this is the asteric on the keypad, value of 10
+        {
+            while(!((P4->IN & BIT4) == BIT4)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+                delay_ms(30);
+                //printf("nothing is pressed\n");
+            }
+
+            value=10;
+        }
+            reset(); //Resets the pins so that the program can read for additional key pad presses.
+    }
+
+        P4-> OUT &= ~BIT2; ///sets column 1 to 0 SETS TO OUTPUT
+        P4-> DIR |= BIT2;
+    {
+        delay_ms(30);
+        if(!(P4->IN & BIT7)) //Row 0, This is the number 2 on the keypad, value of 2
+        {
+            while(!((P4->IN & BIT7) == BIT7)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+                delay_ms(30);
+                //printf("nothing is pressed\n");
+            }
+
+            value=2;
+        }
+
+        if(!(P4->IN & BIT6)) //Row 1,  This is the number 5 on the keypad, value of 5
+        {
+            while(!((P4->IN & BIT6) == BIT6)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+                delay_ms(30);
+                //printf("nothing is pressed\n");
+            }
+
+           value=5;
+        }
+
+        if(!(P4->IN & BIT5)) //Row 2, This is the number 8 on the keypad, value of 8
+        {
+            while(!((P4->IN & BIT5) == BIT5)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+                delay_ms(30);
+                //printf("nothing is pressed\n");
+            }
+
+            value=8;
+         }
+
+        if(!(P4->IN & BIT4)) //Row 3, This is the number 0 on the keypad, value of 0
+        {
+            while(!((P4->IN & BIT4) == BIT4)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+            {
+                delay_ms(30);
+                //printf("nothing is pressed\n");
+            }
+
+           value=0;
+        }
+
+        reset(); //Resets the pins so that the program can read for additional key pad presses.
+    }
+
+    P4-> OUT &= ~BIT1; ///sets column 2 to 0 SETS TO OUTPUT
+    P4-> DIR |= BIT1;
+
+    {
+       delay_ms(30);
+       if(!(P4->IN & BIT7)) //Row 0,  This is the number 3 on the keypad, value of 3
+       {
+           while(!((P4->IN & BIT7) == BIT7)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+           {
+               delay_ms(30);
+               //printf("nothing is pressed\n");
+           }
+
+           value=3;
+       }
+
+       if(!(P4->IN & BIT6)) //Row 1, This is the number 6 on the keypad, value of 6
+       {
+           while(!((P4->IN & BIT6) == BIT6)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+           {
+               delay_ms(30);
+               //printf("nothing is pressed\n");
+           }
+
+           value=6;
+       }
+
+       if(!(P4->IN & BIT5)) //Row 2, This is the number 9 on the keypad, value of 9
+       {
+           while(!((P4->IN & BIT5) == BIT5)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+           {
+               delay_ms(30);
+               //printf("nothing is pressed\n");
+           }
+
+           value=9;
+       }
+
+       if(!(P4->IN & BIT4)) //Row 3, This is the pound sign on the keypad, value of 12
+       {
+           while(!((P4->IN & BIT4) == BIT4)) //Causes the program to wait until the button is released to record a value. also prevents button bouncing entirely.
+           {
+               delay_ms(30);
+               //printf("nothing is pressed\n");
+           }
+
+          value=12;
+       }
+       reset(); //Resets the pins so that the program can read for additional key pad presses.
+    }
+
+
+    //printf("Value = %d\n", value);
+
+    //Return the value calculated by the formula above to be displayed to the user
+    return value;
+}
+
+//Reset function that resets all rows and pins
+void reset(void)
+{
+    P4->DIR &= ~(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7);
+    P4->OUT |= (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // make the internal resistor pull up to 3.3V (default state is a 1 now)
+}
+//function that writes the value to the user
+void write_result(int result)
+{
+    if(result < 0) //If nothing is pressed the user will be identified as such
+    {
+
+    }
+
+    if(result <= 9 && result >= 0 ) //what ever number, 0 through 9 is pressed, will be returned to the user as such
+    {
+        printf("The button pressed is %d \n" , result);
+    }
+
+    if(result == 10) //If the formula returns a 10, this means the asterisk button has been pressed
+    {
+        printf("The button pressed is * \n");
+    }
+
+
+
+    if(result == 12) //If the formula returns a 12, the pound sign will be returned.
+    {
+        printf("The button is # \n");
+    }
+
+}
+
+
+
+/*//Function that collects and stores 4 digits into an array. The array is set up so that no matter how many buttons are pressed the returned
+// 4 digit array thats returned will always be the last 4 digits pressed. An asterick will return an invalid entry
+void collect_input(int entry)
+{
+   static int pincode[4];
+    if(entry == 12) //When the pound sign is pressed, the program will return the last 4 entered digits
+    {
+       printf("\n\nthe 4 digit pin code is %d%d%d%d\n\n", pincode[0], pincode[1], pincode[2], pincode[3]);
+    }
+    if(entry== 10) //If the Asteric Symbol is pressed, nothing will be returned
+    {
+        printf("\nINVALID ENTRY\n");
+    }
+if((entry <=9) && (entry >= 0))//If an entry is pressed 0-9, the number will be stored in the program.
+{
+    int i;
+    for(i=0; i<3; i++)
+    {
+        pincode[i] =pincode[i+1];
+    }
+    pincode[3] = entry;
+}
+}
+*/
