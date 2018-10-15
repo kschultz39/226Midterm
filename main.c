@@ -1,5 +1,6 @@
 #include "msp.h"
 #include "msp432.h"
+#include <stdio.h>
 
 
 /**
@@ -28,6 +29,12 @@ void PrintRED(void);
 void PrintGREEN(void);
 void PrintBLUE(void);
 void PinEnables(void);
+
+int read_keypad();
+void write_result(int value);
+int collect_input(int value);
+void reset(void);
+
 
 enum states{
     DEFAULT,//Default state
@@ -60,7 +67,7 @@ void main(void)
     commandWrite(0x0F);
     commandWrite(0x0C);
 
-    //enum states state= DEFAULT;
+    /*//enum states state= DEFAULT;
    PrintMenu();
    delay_ms(1000);
    DoorSubmenu();
@@ -78,7 +85,7 @@ void main(void)
    PrintGREEN();
    delay_ms(1000);
    PrintBLUE();
-
+*/
 
     /*while(1)
     {
@@ -129,7 +136,9 @@ void main(void)
             }
         }
     }*/
-    int value ;
+    int value;
+    int code=0;
+    char buffer[50];
 
          while(1)
          {
@@ -137,10 +146,9 @@ void main(void)
             write_result(value);//Will print the result to the user
 
 
-             //collect_input(value); //stores the value to
+             code=collect_input(value); //stores the value to
+
          }
-
-
 
 
 }
@@ -467,11 +475,7 @@ void SysTick_Init(void)
     SysTick -> VAL= 0; //any write to current value clears it
     SysTick -> CTRL= 0x00000005; //enable SysTIck, CPU clk, no interrupts
 }
-int read_keypad();
-void write_result(int result);
 
-void reset(void);
-void collect_input(int entry);
 
 
 
@@ -652,53 +656,92 @@ void reset(void)
 //function that writes the value to the user
 void write_result(int result)
 {
-    if(result < 0) //If nothing is pressed the user will be identified as such
+    int i=0;
+    int j=0;
+    char buffer[50];
+    int pin[3];
+    pin[0]=0;
+    pin[1]=0;
+    pin[2]=0;
+
+   if(result < 0) //If nothing is pressed the user will be identified as such
     {
 
     }
 
     if(result <= 9 && result >= 0 ) //what ever number, 0 through 9 is pressed, will be returned to the user as such
     {
-        printf("The button pressed is %d \n" , result);
+        //printf("The button pressed is %d \n" , result);
+        sprintf(buffer, "%d", result);
+        commandWrite(0x01);
+        for(i=0; i<1; i++)   //prints the result to the LCD
+            {
+            dataWrite(buffer[i]);
+            commandWrite(0x80+i);
+            }
     }
+
 
     if(result == 10) //If the formula returns a 10, this means the asterisk button has been pressed
     {
-        printf("The button pressed is * \n");
+        //printf("Button Pressed:* \n");
+        sprintf(buffer, "Invalid: *");
+        commandWrite(0x01);
+        for(i=0; i<10; i++)   //prints result to LCD
+            dataWrite(buffer[i]);
     }
 
 
 
     if(result == 12) //If the formula returns a 12, the pound sign will be returned.
-    {
-        printf("The button is # \n");
-    }
+       {
+           //printf("Button Pressed:# \n");
+
+       }
+
 
 }
 
 
 
-/*//Function that collects and stores 4 digits into an array. The array is set up so that no matter how many buttons are pressed the returned
+//Function that collects and stores 4 digits into an array. The array is set up so that no matter how many buttons are pressed the returned
 // 4 digit array thats returned will always be the last 4 digits pressed. An asterick will return an invalid entry
-void collect_input(int entry)
+int collect_input(int value)
 {
-   static int pincode[4];
-    if(entry == 12) //When the pound sign is pressed, the program will return the last 4 entered digits
+   int pin=0;
+   int i=0;
+   char buffer[50];
+
+   static int pincode[2]; //potentially 3?
+
+    if(value == 12) //When the pound sign is pressed, the program will return the last 4 entered digits
     {
-       printf("\n\nthe 4 digit pin code is %d%d%d%d\n\n", pincode[0], pincode[1], pincode[2], pincode[3]);
+       //printf("\n\nthe 3 digit pin code is %d%d%d\n\n", pincode[0], pincode[1], pincode[2]);
+        //printf("Button Pressed:# \n");
+        commandWrite(0x01);
+        sprintf(buffer, "Value:%d%d%d", pincode[0], pincode[1], pincode[2]);
+        for(i=0; i<9; i++)   //prints result to LCD
+            dataWrite(buffer[i]);
+
+        printf("Value: %d%d%d", pincode[0], pincode[1], pincode[2]);
     }
-    if(entry== 10) //If the Asteric Symbol is pressed, nothing will be returned
+    if(value== 10) //If the Asteric Symbol is pressed, nothing will be returned
     {
         printf("\nINVALID ENTRY\n");
     }
-if((entry <=9) && (entry >= 0))//If an entry is pressed 0-9, the number will be stored in the program.
+if((value <=9) && (value >= 0))//If an entry is pressed 0-9, the number will be stored in the program.
 {
     int i;
-    for(i=0; i<3; i++)
+    int j=0;
+    for(i=0; i<2; i++)
     {
         pincode[i] =pincode[i+1];
     }
-    pincode[3] = entry;
+    pincode[2] = value;
+
+
 }
+    pin= (pincode[0]*100 + pincode[1]*10 + pincode[2]*1);
+    return pin;
+
 }
-*/
