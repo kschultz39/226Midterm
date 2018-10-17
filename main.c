@@ -54,8 +54,8 @@ enum states{
     BLUE,  //Switch to BLUE, control PWM, RETURN TO LGIHTS
 
     //RUN OUTSIDE STATE MACHINE AS IF STATEMENTS TO CONTROL LIGHTS OFF AND ON
-    LIGHTSOFF,  //turns the lights off
-    LIGHTSON    //Turns lights on
+    //LIGHTSOFF,  //turns the lights off
+    //LIGHTSON    //Turns lights on
 };
 
 void main(void)
@@ -67,8 +67,8 @@ void main(void)
     commandWrite(0x0F);
     commandWrite(0x0C);
 
-    /*//enum states state= DEFAULT;
-   PrintMenu();
+   enum states state= DEFAULT;
+   /*PrintMenu();
    delay_ms(1000);
    DoorSubmenu();
    delay_ms(1000);
@@ -86,57 +86,176 @@ void main(void)
    delay_ms(1000);
    PrintBLUE();
 */
-
-    /*while(1)
-    {
-        switch (state)
+       int value=-1;
+while(1)
+{      switch (state)
         {
-            state DEFAULT:
-            {
+        case DEFAULT:
+                commandWrite(0x01); //clears LCD
                 PrintMenu();
                 value= read_keypad();
-                if(value ==1)
-                    state= DOOR;
-                if(value==2)
-                    state= MOTOR;
-                if(value==3)
-                    state= LIGHTS;
-                if(value==0 || value>=4 && value<=12)
-                    state= DEFAULT;
-            }
-            state DOOR:
-            {
-            }
-            state OPEN:
-            {
-            }
-            state CLOSED:
-            {
-            }
-            state MOTOR:
-            {
-            }
-            state LIGHTS:
-            {
-            }
-            state RED:
-            {
-            }
-            state BLUE:
-            {
-            }
-            state GREEN
-            {
-            }
-            state LIGHTSOFF:
+                while(value==-1)
+                {
+                    value= read_keypad();
+                }
+                if(value!=-1)
+                {
+                    printf("%d", value);
+                    if(value == 1)
+                        state= DOOR;
+                    if(value== 2)
+                        state= MOTOR;
+                    if(value== 3)
+                        state= LIGHTS;
+                }
+                break;
+            case DOOR:
+                commandWrite(0x01); //clears LCD
+                DoorSubmenu();
+                value=read_keypad();
+                while(value==-1)
+                {
+                    value=read_keypad();
+                }
+                if(value!=-1)
+                {
+                    if(value==1)
+                        state= OPEN;
+                    if(value==2)
+                        state=CLOSE;
+                    if(value==10)
+                        state=DEFAULT;
+                }
+                break;
+
+            case OPEN:
+                commandWrite(0x01); //clears LCD
+                PrintDoorOpen();
+                //turn on led, turn off other
+                //rotate servo 90*
+                value=read_keypad();
+                while(value==-1)
+                {
+                    value=read_keypad();
+                }
+                if(value!=-1)
+                {
+                    if(value==10)
+                        state=DEFAULT;
+                    if(value!=10)
+                        state= OPEN;
+                }
+                break;
+            case CLOSE:
+                commandWrite(0x01); //clears LCD
+                PrintDoorClosed();
+                //turn off led, turn on other
+                value=read_keypad();
+                while(value==-1)
+                {
+                    value=read_keypad();
+                }
+                if(value!=-1)
+                {
+                    if(value==10)
+                        state=DEFAULT;
+                    if(value!=10)
+                        state= CLOSE;
+                 }
+                break;
+            case MOTOR:
+                commandWrite(0x01); //clears LCD
+                MotorSubmenu();
+                //PWM
+                value=read_keypad();
+                while(value==-1)
+                   {
+                      value=read_keypad();
+                   }
+                if(value!=-1)
+                   {
+                      if(value==10)
+                          state=DEFAULT;
+                      if(value!=10)
+                          state= MOTOR;
+                   }
+                 break;
+
+            case LIGHTS:
+                commandWrite(0x01); //clears LCD
+                LightSubmenu();
+                value=read_keypad();
+                while(value==-1)
+                {
+                    value=read_keypad();
+                }
+                if(value!=-1)
+                {
+                    if(value==1)
+                        state=RED;
+                    if(value==2)
+                        state=BLUE;
+                    if(value==3)
+                        state=GREEN;
+                    if(value==10)
+                        state=DEFAULT;
+                }
+                break;
+            case RED:
+                commandWrite(0x01); //clears LCD
+                PrintRED();
+                //Get PWM Value
+                value=read_keypad();
+                while(value==-1)
+                {
+                    value=read_keypad();
+                }
+                if(value!=-1)
+                {
+                    if(value==10)
+                        state=DEFAULT;
+                }
+                break;
+            case BLUE:
+                commandWrite(0x01); //clears LCD
+                PrintBLUE();
+                //Get PWM value
+                value=read_keypad();
+                while(value==-1)
+                {
+                    value=read_keypad();
+                }
+                if(value!=-1)
+                {
+                    if(value==10)
+                        state=DEFAULT;
+                }
+                break;
+            case GREEN:
+                commandWrite(0x01); //clears LCD
+                PrintGREEN();
+                //Get PWM value
+                value=read_keypad();
+                while(value==-1)
+                {
+                    value=read_keypad();
+                }
+                if(value!=-1)
+                {
+                    if(value==10)
+                        state=DEFAULT;
+                }
+
+                break;
+            /*state LIGHTSOFF:
             {
             }
             state LIGHTSON:
             {
-            }
+            }*/
         }
-    }*/
-    int value;
+
+    /*int value=0;
     int code=0;
     char buffer[50];
 
@@ -148,9 +267,9 @@ void main(void)
 
              code=collect_input(value); //stores the value to
 
-         }
+         }*/
 
-
+}
 }
 void PinEnables(void)
 {
