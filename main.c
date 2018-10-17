@@ -141,7 +141,7 @@ while(1)
                 if(value!=-1)
                 {
                     if(value==10)
-                        state=DEFAULT;
+                        state=DOOR;
                     if(value!=10)
                         state= OPEN;
                 }
@@ -158,7 +158,7 @@ while(1)
                 if(value!=-1)
                 {
                     if(value==10)
-                        state=DEFAULT;
+                        state=DOOR;
                     if(value!=10)
                         state= CLOSE;
                  }
@@ -213,7 +213,7 @@ while(1)
                 if(value!=-1)
                 {
                     if(value==10)
-                        state=DEFAULT;
+                        state=LIGHTS;
                 }
                 break;
             case BLUE:
@@ -228,7 +228,7 @@ while(1)
                 if(value!=-1)
                 {
                     if(value==10)
-                        state=DEFAULT;
+                        state=LIGHTS;
                 }
                 break;
             case GREEN:
@@ -243,7 +243,7 @@ while(1)
                 if(value!=-1)
                 {
                     if(value==10)
-                        state=DEFAULT;
+                        state=LIGHTS;
                 }
 
                 break;
@@ -258,15 +258,11 @@ while(1)
     /*int value=0;
     int code=0;
     char buffer[50];
-
          while(1)
          {
             value = read_keypad(); //inputs the calculated value from the keypad into the int value to be used in other parts of the program.
             write_result(value);//Will print the result to the user
-
-
              code=collect_input(value); //stores the value to
-
          }*/
 
 }
