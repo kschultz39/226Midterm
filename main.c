@@ -100,7 +100,7 @@ while(1)
                 }
                 if(value!=-1)
                 {
-                    printf("%d", value);
+                    //printf("%d", value);
                     if(value == 1)
                         state= DOOR;
                     if(value== 2)
@@ -131,7 +131,10 @@ while(1)
             case OPEN:
                 commandWrite(0x01); //clears LCD
                 PrintDoorOpen();
-                //turn on led, turn off other
+                //turn on GREEN LED (P5.4), turn off RED LED (P5.2)
+                P5->OUT &= ~(BIT2);
+                P5->OUT |= (BIT2);
+
                 //rotate servo 90*
                 value=read_keypad();
                 while(value==-1)
@@ -149,7 +152,10 @@ while(1)
             case CLOSE:
                 commandWrite(0x01); //clears LCD
                 PrintDoorClosed();
-                //turn off led, turn on other
+                //turn off GREEN LED (P5.4), turn on RED LED (P5.2)
+                P5->OUT |= (BIT2);
+                P5->OUT &= ~(BIT4);
+
                 value=read_keypad();
                 while(value==-1)
                 {
@@ -276,6 +282,7 @@ void PinEnables(void)
     P3->DIR |= (BIT2|BIT3); //sets P3.2 and P3.3 as OUTPUT
     //P3->OUT &= ~(BIT2|BIT3); //sets P3.2 and P3.3 to 0 for RS RW =0
 
+    //LCD
     P2->SEL0 &= ~(BIT4|BIT5|BIT6|BIT7); //sets (DB4-DB7) P2.4, P2.5, P2.5, P2.6, P2.7 as GPIO
     P2->SEL1 &= ~(BIT4|BIT5|BIT6|BIT7);
     P2->DIR |= (BIT4|BIT5|BIT6|BIT7); //sets pins 4.4-4.7 to OUTPUT
@@ -292,6 +299,12 @@ void PinEnables(void)
     P4->DIR &= ~(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // sets up P4 with 1-7
     P4->REN |= (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); //enable internal resistor on P4 1-7
     P4->OUT |=  (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // make the internal resistor pull up to 3.3V (default state is a 1 now)
+
+    //Pin enables for the door open/closed lights where red is P5.2 and green is P5.4
+    P5->SEL0 &= ~(BIT2|BIT5); //initializes red LED and green LED
+    P5->SEL1 &= ~(BIT2|BIT5);   //initializes red LED and green LED
+    P5->DIR |= (BIT2|BIT5);     //initializes red LED and green LED
+
 }
 void PrintMenu(void)
 {
