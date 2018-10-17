@@ -724,6 +724,9 @@ int collect_input(int value)
             dataWrite(buffer[i]);
 
         printf("Value: %d%d%d", pincode[0], pincode[1], pincode[2]);
+        pincode[0]=0;
+        pincode[1]=0;
+        pincode[2]=0;
     }
     if(value== 10) //If the Asteric Symbol is pressed, nothing will be returned
     {
