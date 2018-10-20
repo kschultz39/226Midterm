@@ -873,8 +873,10 @@ int collect_input(int value)
         sprintf(buffer, "Value:%d%d%d", pincode[0], pincode[1], pincode[2]);
         for(i=0; i<9; i++)   //prints result to LCD
             dataWrite(buffer[i]);
+        pin= (pincode[0]*100 + pincode[1]*10 + pincode[2]*1);
+        printf("PIN %d", pin);
 
-        printf("Value: %d%d%d", pincode[0], pincode[1], pincode[2]);
+        //printf("Value: %d%d%d", pincode[0], pincode[1], pincode[2]);
         pincode[0]=0;
         pincode[1]=0;
         pincode[2]=0;
@@ -895,7 +897,8 @@ if((value <=9) && (value >= 0))//If an entry is pressed 0-9, the number will be 
 
 
 }
-    pin= (pincode[0]*100 + pincode[1]*10 + pincode[2]*1);
+    //pin= (pincode[0]*100 + pincode[1]*10 + pincode[2]*1);
+    //printf("PIN %d", pin);
     return pin;
 
 }
@@ -906,13 +909,14 @@ int get_value(void)
     int value=0;
     int code=0;
     char buffer[50];
-    while(1)
-      {
-         value = read_keypad(); //inputs the calculated value from the keypad into the int value to be used in other parts of the program.
-         write_result(value);//Will print the result to the user
-         code=collect_input(value); //stores the value to
-       }
 
-    return code;
+    while(value!= 12)
+            {
+            value = read_keypad(); //inputs the calculated value from the keypad into the int value to be used in other parts of the program.
+            write_result(value);//Will print the result to the user
+            code=collect_input(value); //stores the value to
+            }
+
+        printf("Value 12: Pin %d", code);
+        return code;
 }
-
