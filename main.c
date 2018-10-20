@@ -228,13 +228,23 @@ while(1)
                         state=DEFAULT;
                 }
                 break;
-            case RED:
+             case RED:
                 commandWrite(0x01); //clears LCD
                 PrintRED();
                 //Get PWM Value
+                //Red PWM LED is P7.4 and TA1.4
+
+                int PWMRed=0;
                 value=read_keypad();
                 while(value==-1)
                 {
+                    PWMRed= get_value();
+
+                    if(PWMRed == 0)
+                        TIMER_A1->CCR[4] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    else
+                        TIMER_A1->CCR[4] = PWMRed * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999.
+
                     value=read_keypad();
                 }
                 if(value!=-1)
@@ -246,10 +256,18 @@ while(1)
             case BLUE:
                 commandWrite(0x01); //clears LCD
                 PrintBLUE();
+                int PWMBlue=0;
                 //Get PWM value
+                //Blue PWM LED is P7.6 and TA1.2
                 value=read_keypad();
                 while(value==-1)
                 {
+                    PWMBlue= get_value();
+
+                    if(PWMBlue == 0)
+                       TIMER_A1->CCR[2] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    else
+                       TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999
                     value=read_keypad();
                 }
                 if(value!=-1)
@@ -261,10 +279,17 @@ while(1)
             case GREEN:
                 commandWrite(0x01); //clears LCD
                 PrintGREEN();
+                int PWMGreen=0;
                 //Get PWM value
+                //Green PWM LED is P7.5 and TA1.3
                 value=read_keypad();
                 while(value==-1)
                 {
+                    PWMGreen= get_value();
+                    if(PWMGreen == 0)
+                        TIMER_A1->CCR[3] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    else
+                        TIMER_A1->CCR[3] = PWMGreen * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999
                     value=read_keypad();
                 }
                 if(value!=-1)
@@ -326,7 +351,25 @@ void PinEnables(void)
     P2->REN  |=  (BIT3);   //enables internal resistors
     P2->OUT  |=  (BIT3);   //sets output
     P2->IE   |=  (BIT3);   //enables interrupt
+    
+    //Pin enables for PWM LEDs (Referencing code from Zuidema In-class example Week 5 part 1)
+    P7->SEL0 |= (BIT4|BIT5|BIT6); //sets SEL0=1;
+    P7->SEL1 &= (BIT4|BIT5|BIT6);  //SEL1 = 0. Setting SEL0=1 and SEL1=0 activates PWM function
+    P7->DIR |= (BIT4|BIT5|BIT6);    // Set pins as  PWM output.
+    P7->OUT &= ~(BIT4|BIT5|BIT6);
 
+    TIMER_A1->CCR[0] = 999;  //1000 clocks = 0.333 ms.  This is the period of everything on Timer A1.  0.333 < 16.666 ms so the on/off shouldn't
+                                 //be visible with the human eye.  1000 makes easy math to calculate duty cycle.  No particular reason to use 1000.
+
+    TIMER_A1->CCTL[2] = 0b0000000011100000;  //reset / set compare.   Duty Cycle = CCR[1]/CCR[0].
+    TIMER_A1->CCR[2] = 0;  //P7.6 initialize to 0% duty cycle
+    TIMER_A1->CCTL[3] = 0b0000000011100000;
+    TIMER_A1->CCR[3] = 0;  //P7.5 intialize to 0% duty cycle
+    TIMER_A1->CCTL[4] = 0b0000000011100000;
+    TIMER_A1->CCR[4] = 0;  //7.4 0% duty cycle
+
+    //The next line turns on all of Timer A1.  None of the above will do anything until Timer A1 is started.
+    TIMER_A1->CTL = 0b0000001000010100;
 }
 
 void PrintMenu(void)
