@@ -63,18 +63,7 @@ void main(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
 
-    //DOOR MOTOR CONFIGURATION AND TIMER=================================
-    // Configure 5.7 as Timer A2.2 output
-            P5->SEL0 |= (BIT7);
-            P5->SEL1 &= ~(BIT7);
-            P5->DIR |= (BIT7);
-
-            //Need to configure both red led and green led
-    TIMER_A2->CCR[0] = 30000-1; //This is the PWM period   NEED 20 MS   30000-1
-    TIMER_A2->CCTL[2] = 0xE0;   //CCR4 reset/set mode
-    TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
-//============================================================================
-
+    
     PinEnables();
     int i=0;
     int P1_4Pressed=0;
@@ -370,6 +359,19 @@ void PinEnables(void)
 
     //The next line turns on all of Timer A1.  None of the above will do anything until Timer A1 is started.
     TIMER_A1->CTL = 0b0000001000010100;
+    
+    //DOOR MOTOR CONFIGURATION AND TIMER
+    //Configure 5.7 as Timer A2.2 output
+            P5->SEL0 |= (BIT7);
+            P5->SEL1 &= ~(BIT7);
+            P5->DIR |= (BIT7);
+
+            //Need to configure both red led and green led
+    TIMER_A2->CCR[0] = 30000-1; //This is the PWM period   NEED 20 MS   30000-1
+    TIMER_A2->CCTL[2] = 0xE0;   //CCR4 reset/set mode
+    TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
+
+
 }
 
 void PrintMenu(void)
