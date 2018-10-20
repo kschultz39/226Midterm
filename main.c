@@ -36,6 +36,7 @@ int collect_input(int value);
 void reset(void);
 
 
+
 enum states{
     DEFAULT,//Default state
 
@@ -63,6 +64,7 @@ void main(void)
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
     PinEnables();
     int i=0;
+    int P1_4Pressed=0;
     LCD_init();
     commandWrite(0x0F);
     commandWrite(0x0C);
@@ -90,7 +92,7 @@ void main(void)
 while(1)
 {      switch (state)
         {
-        case DEFAULT:
+            case DEFAULT:
                 commandWrite(0x01); //clears LCD
                 PrintMenu();
                 value= read_keypad();
@@ -131,8 +133,9 @@ while(1)
             case OPEN:
                 commandWrite(0x01); //clears LCD
                 PrintDoorOpen();
-                //turn on GREEN LED (P5.4), turn off RED LED (P5.2)
-                P5->OUT &= ~(BIT2);
+
+                //turn on GREEN LED (P5.2), turn off RED LED (P5.5)
+                P5->OUT &= ~(BIT5);
                 P5->OUT |= (BIT2);
 
                 //rotate servo 90*
@@ -152,9 +155,9 @@ while(1)
             case CLOSE:
                 commandWrite(0x01); //clears LCD
                 PrintDoorClosed();
-                //turn off GREEN LED (P5.4), turn on RED LED (P5.2)
-                P5->OUT |= (BIT2);
-                P5->OUT &= ~(BIT4);
+                //turn off GREEN LED (P5.2), turn on RED LED (P5.5)
+                P5->OUT |= (BIT5);
+                P5->OUT &= ~(BIT2);
 
                 value=read_keypad();
                 while(value==-1)
@@ -261,15 +264,7 @@ while(1)
             }*/
         }
 
-    /*int value=0;
-    int code=0;
-    char buffer[50];
-         while(1)
-         {
-            value = read_keypad(); //inputs the calculated value from the keypad into the int value to be used in other parts of the program.
-            write_result(value);//Will print the result to the user
-             code=collect_input(value); //stores the value to
-         }*/
+
 
 }
 }
@@ -300,12 +295,21 @@ void PinEnables(void)
     P4->REN |= (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); //enable internal resistor on P4 1-7
     P4->OUT |=  (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // make the internal resistor pull up to 3.3V (default state is a 1 now)
 
-    //Pin enables for the door open/closed lights where red is P5.2 and green is P5.4
+    //Pin enables for the door open/closed lights GREEN LED (P5.2) and  RED LED (P5.5)
     P5->SEL0 &= ~(BIT2|BIT5); //initializes red LED and green LED
     P5->SEL1 &= ~(BIT2|BIT5);   //initializes red LED and green LED
     P5->DIR |= (BIT2|BIT5);     //initializes red LED and green LED
 
+    //Pin enables for Button 2.3 which is to be used for turning on and off the LEDs and is structured as an interrupt
+    P2->SEL0 &= ~(BIT3);   //button connected to P2.3
+    P2->SEL1 &= ~(BIT3);   //button connected to P2.3
+    P2->DIR  &= ~(BIT3);   //sets to input
+    P2->REN  |=  (BIT3);   //enables internal resistors
+    P2->OUT  |=  (BIT3);   //sets output
+    P2->IE   |=  (BIT3);   //enables interrupt
+
 }
+
 void PrintMenu(void)
 {
     commandWrite(0x0C);
@@ -377,7 +381,7 @@ void MotorSubmenu(void)
     commandWrite(0x0C);
     int i;
     char line1[]= "   Motor Menu    ";
-    char line2[]= "Enter motor speed:    ";
+    char line2[]= "Enter speed:    ";
 
 
      for(i=0; i<16; i++)
@@ -875,4 +879,20 @@ if((value <=9) && (value >= 0))//If an entry is pressed 0-9, the number will be 
     pin= (pincode[0]*100 + pincode[1]*10 + pincode[2]*1);
     return pin;
 
+}
+
+
+int get_value(void)
+{
+    int value=0;
+    int code=0;
+    char buffer[50];
+    while(1)
+      {
+         value = read_keypad(); //inputs the calculated value from the keypad into the int value to be used in other parts of the program.
+         write_result(value);//Will print the result to the user
+         code=collect_input(value); //stores the value to
+       }
+
+    return code;
 }
