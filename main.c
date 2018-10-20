@@ -28,6 +28,7 @@ void LightSubmenu(void);
 void PrintRED(void);
 void PrintGREEN(void);
 void PrintBLUE(void);
+void error_message(void);
 void PinEnables(void);
 
 int read_keypad();
@@ -63,7 +64,7 @@ void main(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
 
-    
+
     PinEnables();
     int i=0;
     int P1_4Pressed=0;
@@ -71,25 +72,9 @@ void main(void)
     commandWrite(0x0F);
     commandWrite(0x0C);
 
-   enum states state= DEFAULT;
-   /*PrintMenu();
-   delay_ms(1000);
-   DoorSubmenu();
-   delay_ms(1000);
-   PrintDoorOpen();
-   delay_ms(1000);
-   PrintDoorClosed();
-   delay_ms(1000);
-   MotorSubmenu();
-   delay_ms(1000);
-   LightSubmenu();
-   delay_ms(1000);
-   PrintRED();
-   delay_ms(1000);
-   PrintGREEN();
-   delay_ms(1000);
-   PrintBLUE();
-*/
+    enum states state= DEFAULT;
+
+
        int value=-1;
 while(1)
 {      switch (state)
@@ -225,15 +210,20 @@ while(1)
 
                 int PWMRed=0;
                 value=read_keypad();
-                while(value==-1)
-                {
-                    PWMRed= get_value();
 
+                PWMRed= get_value();
+                if(PWMRed >=0 && PWMRed<=100)
+                {
                     if(PWMRed == 0)
                         TIMER_A1->CCR[4] = 0; //0 needs to be set to 0 instead of 0 minus 1.
                     else
                         TIMER_A1->CCR[4] = PWMRed * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999.
+                }
 
+                else
+                    error_message();
+                while(value==-1)
+                {
                     value=read_keypad();
                 }
                 if(value!=-1)
@@ -249,14 +239,18 @@ while(1)
                 //Get PWM value
                 //Blue PWM LED is P7.6 and TA1.2
                 value=read_keypad();
+                PWMBlue= get_value();
+                if(PWMBlue >=0 && PWMBlue<=100)
+                {
+                    if(PWMBlue == 0)
+                        TIMER_A1->CCR[2] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    else
+                        TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999
+                }
+                else
+                    error_message();
                 while(value==-1)
                 {
-                    PWMBlue= get_value();
-
-                    if(PWMBlue == 0)
-                       TIMER_A1->CCR[2] = 0; //0 needs to be set to 0 instead of 0 minus 1.
-                    else
-                       TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999
                     value=read_keypad();
                 }
                 if(value!=-1)
@@ -272,13 +266,18 @@ while(1)
                 //Get PWM value
                 //Green PWM LED is P7.5 and TA1.3
                 value=read_keypad();
-                while(value==-1)
+                PWMGreen= get_value();
+                if(PWMGreen >=0 && PWMGreen<=100)
                 {
-                    PWMGreen= get_value();
                     if(PWMGreen == 0)
                         TIMER_A1->CCR[3] = 0; //0 needs to be set to 0 instead of 0 minus 1.
                     else
                         TIMER_A1->CCR[3] = PWMGreen * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999
+                }
+                else
+                    error_message();
+                while(value==-1)
+                {
                     value=read_keypad();
                 }
                 if(value!=-1)
@@ -294,11 +293,10 @@ while(1)
             state LIGHTSON:
             {
             }*/
+
         }
+    }
 
-
-
-}
 }
 void PinEnables(void)
 {
@@ -340,7 +338,7 @@ void PinEnables(void)
     P2->REN  |=  (BIT3);   //enables internal resistors
     P2->OUT  |=  (BIT3);   //sets output
     P2->IE   |=  (BIT3);   //enables interrupt
-    
+
     //Pin enables for PWM LEDs (Referencing code from Zuidema In-class example Week 5 part 1)
     P7->SEL0 |= (BIT4|BIT5|BIT6); //sets SEL0=1;
     P7->SEL1 &= (BIT4|BIT5|BIT6);  //SEL1 = 0. Setting SEL0=1 and SEL1=0 activates PWM function
@@ -359,7 +357,7 @@ void PinEnables(void)
 
     //The next line turns on all of Timer A1.  None of the above will do anything until Timer A1 is started.
     TIMER_A1->CTL = 0b0000001000010100;
-    
+
     //DOOR MOTOR CONFIGURATION AND TIMER
     //Configure 5.7 as Timer A2.2 output
             P5->SEL0 |= (BIT7);
@@ -524,10 +522,17 @@ void PrintRED(void)
     commandWrite(0x01);
     int i;
     char option[]= "    Red LED     ";
+    char prompt[]= "Enter Brightness";
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
     }
+    commandWrite(0xC0);
+    for(i=0; i<16; i++)
+    {
+        dataWrite(prompt[i]);
+    }
+
 }
 
 void PrintBLUE(void)
@@ -535,9 +540,15 @@ void PrintBLUE(void)
     commandWrite(0x01);
     int i;
     char option[]= "    Blue LED     ";
+    char prompt[]= "Enter Brightness";
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
+    }
+    commandWrite(0xC0);
+    for(i=0; i<16; i++)
+    {
+        dataWrite(prompt[i]);
     }
 }
 void PrintGREEN(void)
@@ -545,10 +556,16 @@ void PrintGREEN(void)
     commandWrite(0x01);
     int i;
     char option[]= "    Green LED     ";
+    char prompt[]= "Enter Brightness";
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
     }
+    commandWrite(0xC0);
+    for(i=0; i<16; i++)
+    {
+        dataWrite(prompt[i]);
+     }
 }
 
 
@@ -954,6 +971,7 @@ int get_value(void)
     int value=0;
     int code=0;
     char buffer[50];
+    int i=0;
 
     while(value!= 12)
             {
@@ -962,6 +980,50 @@ int get_value(void)
             code=collect_input(value); //stores the value to
             }
 
-        printf("Value 12: Pin %d", code);
+    sprintf(buffer, "Input: %d%%          ", code);
+
+    commandWrite(0xC0); //moves cursor to second line
+    for(i=0; i<16; i++)
+            dataWrite(buffer[i]);
         return code;
+}
+
+void error_message(void)
+{
+    int i=0;
+    char line1[]= "Invalid Entry      ";
+    char line2[]= "Valid #: 1-100     ";
+    char line3[]= "Return to Menu     ";
+    char line4[]= "By entering *      ";
+
+    commandWrite(0x01);
+
+    for(i=0; i<16; i++)
+    {
+        dataWrite(line1[i]);
+     }
+
+    commandWrite(0xC0);
+    delay_ms(100);
+    for(i=0; i<16; i++)
+    {
+        dataWrite(line2[i]);
+    }
+
+    commandWrite(0x90);
+    delay_ms(100);
+    for(i=0; i<16; i++)
+    {
+        dataWrite(line3[i]);
+    }
+
+    commandWrite(0xD0);
+    delay_ms(100);
+    for(i=0; i<16; i++)
+    {
+        dataWrite(line4[i]);
+    }
+
+
+
 }
