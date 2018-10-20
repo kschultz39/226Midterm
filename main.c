@@ -64,6 +64,21 @@ void main(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
 
+//DC MOTOR SET UP================
+
+
+
+    P5->SEL0 |= (BIT6);
+        P5->SEL1 &= ~(BIT6);
+        P5->DIR |= (BIT6);
+
+        TIMER_A2->CCR[0] = 37500-1; //This is the PWM period   3,000,000/75,000 = 40 Hz
+        TIMER_A2->CCR[1] = 0;
+        TIMER_A2->CCTL[1] = 0xE0;   //CCR1 reset/set mode
+        TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
+
+//===============================
+
 
     PinEnables();
     int i=0;
@@ -167,8 +182,22 @@ while(1)
             case MOTOR:
                 commandWrite(0x01); //clears LCD
                 MotorSubmenu();
-                //PWM
+                //PWM set
+                int PWM_DCmotor=0;
                 value=read_keypad();
+
+                PWM_DCmotor= get_value();
+
+                if(PWM_DCmotor >=0 && PWM_DCmotor<=100)
+                {
+                    if(PWM_DCmotor == 0)
+                        TIMER_A2->CCR[1] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    else
+                        TIMER_A2->CCR[1] = (PWM_DCmotor/100.0) * (37500);  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999.
+                }
+
+                else
+                     error_message();
                 while(value==-1)
                    {
                       value=read_keypad();
