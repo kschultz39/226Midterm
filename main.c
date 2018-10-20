@@ -62,6 +62,19 @@ enum states{
 void main(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
+
+    //DOOR MOTOR CONFIGURATION AND TIMER=================================
+    // Configure 5.7 as Timer A2.2 output
+            P5->SEL0 |= (BIT7);
+            P5->SEL1 &= ~(BIT7);
+            P5->DIR |= (BIT7);
+
+            //Need to configure both red led and green led
+    TIMER_A2->CCR[0] = 30000-1; //This is the PWM period   NEED 20 MS   30000-1
+    TIMER_A2->CCTL[2] = 0xE0;   //CCR4 reset/set mode
+    TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
+//============================================================================
+
     PinEnables();
     int i=0;
     int P1_4Pressed=0;
@@ -138,7 +151,9 @@ while(1)
                 P5->OUT &= ~(BIT5);
                 P5->OUT |= (BIT2);
 
-                //rotate servo 90*
+                //Door Open
+                TIMER_A2->CCR[2] = 1500;
+
                 value=read_keypad();
                 while(value==-1)
                 {
@@ -158,6 +173,9 @@ while(1)
                 //turn off GREEN LED (P5.2), turn on RED LED (P5.5)
                 P5->OUT |= (BIT5);
                 P5->OUT &= ~(BIT2);
+
+                //door close
+                TIMER_A2->CCR[2] = 3000;
 
                 value=read_keypad();
                 while(value==-1)
@@ -897,3 +915,4 @@ int get_value(void)
 
     return code;
 }
+
