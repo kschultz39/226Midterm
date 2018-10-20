@@ -299,6 +299,7 @@ void PinEnables(void)
     P5->SEL0 &= ~(BIT2|BIT5); //initializes red LED and green LED
     P5->SEL1 &= ~(BIT2|BIT5);   //initializes red LED and green LED
     P5->DIR |= (BIT2|BIT5);     //initializes red LED and green LED
+    P5->OUT &= ~(BIT2|BIT5); //initializes LEDs to be off
 
     //Pin enables for Button 2.3 which is to be used for turning on and off the LEDs and is structured as an interrupt
     P2->SEL0 &= ~(BIT3);   //button connected to P2.3
