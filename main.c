@@ -3,9 +3,14 @@
 #include <stdio.h>
 
 
-/**
- * main.c
- */
+/**************************
+ *  Authors: Kelly Schultz and Nathan Gruber
+ *  Class: EGR 226 902
+ *  Instructor: Professor Zuidema
+ *  Date: 10/22/18
+ *  Assignment: Midterm Project
+ * 
+ **************************/
 void SysTick_Init(void);
 
 
