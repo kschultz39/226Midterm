@@ -9,7 +9,7 @@
  *  Instructor: Professor Zuidema
  *  Date: 10/22/18
  *  Assignment: Midterm Project
- * 
+ *
  **************************/
 void SysTick_Init(void);
 
@@ -41,6 +41,13 @@ void write_result(int value);
 int collect_input(int value);
 void reset(void);
 
+int PWMRed=0; //global variable for red PWM value
+int PWMBlue=0; //global variable for blue PWM value
+int PWMGreen=0; //global variable for green PWM value
+int LEDFlag=1; //global variable for LEDFlag
+
+int buttonP16_pressed();
+int buttonP17_pressed();
 
 
 enum states{
@@ -60,34 +67,19 @@ enum states{
     GREEN,  //Switch to GREEN, control PWM, RETURN TO LGIHTS
     BLUE,  //Switch to BLUE, control PWM, RETURN TO LGIHTS
 
-    //RUN OUTSIDE STATE MACHINE AS IF STATEMENTS TO CONTROL LIGHTS OFF AND ON
-    //LIGHTSOFF,  //turns the lights off
-    //LIGHTSON    //Turns lights on
+
 };
 
 void main(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
 
-//DC MOTOR SET UP================
 
-
-
-    P5->SEL0 |= (BIT6);
-        P5->SEL1 &= ~(BIT6);
-        P5->DIR |= (BIT6);
-
-        TIMER_A2->CCR[0] = 37500-1; //This is the PWM period   3,000,000/75,000 = 40 Hz
-        TIMER_A2->CCR[1] = 0;
-        TIMER_A2->CCTL[1] = 0xE0;   //CCR1 reset/set mode
-        TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
-
-//===============================
 
 
     PinEnables();
     int i=0;
-    int P1_4Pressed=0;
+
     LCD_init();
     commandWrite(0x0F);
     commandWrite(0x0C);
@@ -242,7 +234,7 @@ while(1)
                 //Get PWM Value
                 //Red PWM LED is P7.4 and TA1.4
 
-                int PWMRed=0;
+
                 value=read_keypad();
 
                 PWMRed= get_value();
@@ -269,7 +261,7 @@ while(1)
             case BLUE:
                 commandWrite(0x01); //clears LCD
                 PrintBLUE();
-                int PWMBlue=0;
+
                 //Get PWM value
                 //Blue PWM LED is P7.6 and TA1.2
                 value=read_keypad();
@@ -296,7 +288,7 @@ while(1)
             case GREEN:
                 commandWrite(0x01); //clears LCD
                 PrintGREEN();
-                int PWMGreen=0;
+
                 //Get PWM value
                 //Green PWM LED is P7.5 and TA1.3
                 value=read_keypad();
@@ -403,8 +395,106 @@ void PinEnables(void)
     TIMER_A2->CCTL[2] = 0xE0;   //CCR4 reset/set mode
     TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
 
+    //DC MOTOR SET UP
+    P5->SEL0 |= (BIT6);
+    P5->SEL1 &= ~(BIT6);
+    P5->DIR |= (BIT6);
+
+    TIMER_A2->CCR[0] = 37500-1; //This is the PWM period   3,000,000/75,000 = 40 Hz
+    TIMER_A2->CCR[1] = 0;
+    TIMER_A2->CCTL[1] = 0xE0;   //CCR1 reset/set mode
+    TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
+
+    //BUTTON 1.6 and BUTTON 1.7 (Button 1.6 corresponds to lights, Button 1.7 corresponds to motor)
+        P1-> SEL0 &= ~(BIT6|BIT7);
+        P1 -> SEL1 &= ~(BIT6|BIT7);
+        P1 -> DIR &= ~(BIT6|BIT7);
+        P1 -> REN |= (BIT6|BIT7);
+        P1->OUT |= (BIT6|BIT7);
+        P1->IE |= (BIT6|BIT7);
+        P1->IES |= (BIT6|BIT7);
+        NVIC_EnableIRQ(PORT1_IRQn);
+
+
+
+
+
+
 
 }
+int buttonP16_pressed()
+{
+    int button_result=0;
+    //delay_ms(1000);
+
+    if (!((P1->IN & BIT6) ==BIT6))    //if true, 1.6 pressed
+        {
+
+
+            //delay_ms(10); //delay 10 ms
+
+            while(!((P1->IN & BIT6) ==BIT6)){} //will sit inside these two brackets until button is released
+            button_result=1;
+        }
+
+    return button_result;
+}
+int buttonP17_pressed()
+{
+    int button_result=0;
+   // delay_ms(1000);
+
+    if (!((P1->IN & BIT7) ==BIT7))    //if true, 1.6 pressed
+        {
+
+
+            //delay_ms(10); //delay 10 ms
+
+            while(!((P1->IN & BIT7) ==BIT7)){} //will sit inside these two brackets until button is released
+            button_result=1;
+        }
+
+    return button_result;
+}
+void PORT1_IRQHandler()
+{
+    //Button 1.6 is for Lights
+    //Button 1.7 is for DC motor
+    if(P1->IFG & BIT6)
+//    if(buttonP16_pressed())
+    {
+        if(LEDFlag==1)
+        {
+            P1 -> IFG &= ~BIT6;
+            LEDFlag=0;
+            TIMER_A1->CCR[4] = 0; //RED LED off
+            TIMER_A1->CCR[2] = 0; //BLUE LED off
+            TIMER_A1->CCR[3] = 0; //Green LED off
+            P5->OUT ^= (BIT5);
+            P5->OUT ^= (BIT2);
+
+        }
+        else //if(LEDFlag==0)
+        {
+            P1 -> IFG &= ~BIT6;
+            LEDFlag=1;
+            TIMER_A1->CCR[4] = PWMRed * 10 - 1;  // RED LED on at previous Duty Cycle
+            TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  //BLUE LED on at previous Duty Cycle
+            TIMER_A1->CCR[3] = PWMGreen * 10 - 1;  //Green LED on at previous Duty Cycle
+            P5->OUT ^= (BIT5);
+            P5->OUT ^= (BIT2);
+        }
+    }
+    //if(buttonP17_pressed())
+    if(P1->IFG & BIT7)
+    {
+        P1 -> IFG &= ~BIT7;
+        TIMER_A2->CCR[1] = 0; //Stops DC Motor from Running
+
+    }
+
+}
+
 
 void PrintMenu(void)
 {
@@ -1061,3 +1151,4 @@ void error_message(void)
 
 
 }
+
