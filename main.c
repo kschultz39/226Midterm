@@ -79,7 +79,7 @@ void main(void)
 
     PinEnables();
     int i=0;
-    int P1_4Pressed=0;
+
     LCD_init();
     commandWrite(0x0F);
     commandWrite(0x0C);
@@ -424,19 +424,21 @@ void PORT1_IRQHandler()
     //Button 1.6 is for Lights
     //Button 1.7 is for DC motor
     if(buttonP16_pressed())
-        if(LEDFlag=1)
+        if(LEDFlag==1)
         {
+            LEDFlag=0;
             TIMER_A1->CCR[4] = 0; //RED LED off
             TIMER_A1->CCR[2] = 0; //BLUE LED off
             TIMER_A1->CCR[3] = 0; //Green LED off
-            LEDFlag=0;
+
         }
-        if(LEDFlag=0)
+        if(LEDFlag==0)
         {
+            LEDFlag=1;
             TIMER_A1->CCR[4] = PWMRed * 10 - 1;  // RED LED on at previous Duty Cycle
             TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  //BLUE LED on at previous Duty Cycle
             TIMER_A1->CCR[3] = PWMGreen * 10 - 1;  //Green LED on at previous Duty Cycle
-            LEDFlag=1;
+
         }
     if(buttonP17_pressed())
     {
@@ -1134,4 +1136,5 @@ int buttonP17_pressed()
 
     return button_result;
 }
+
 
