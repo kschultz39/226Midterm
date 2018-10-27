@@ -46,8 +46,7 @@ int PWMBlue=0; //global variable for blue PWM value
 int PWMGreen=0; //global variable for green PWM value
 int LEDFlag=1; //global variable for LEDFlag
 
-int buttonP16_pressed();
-int buttonP17_pressed();
+
 
 
 enum states{
@@ -422,40 +421,7 @@ void PinEnables(void)
 
 
 }
-int buttonP16_pressed()
-{
-    int button_result=0;
-    //delay_ms(1000);
 
-    if (!((P1->IN & BIT6) ==BIT6))    //if true, 1.6 pressed
-        {
-
-
-            //delay_ms(10); //delay 10 ms
-
-            while(!((P1->IN & BIT6) ==BIT6)){} //will sit inside these two brackets until button is released
-            button_result=1;
-        }
-
-    return button_result;
-}
-int buttonP17_pressed()
-{
-    int button_result=0;
-   // delay_ms(1000);
-
-    if (!((P1->IN & BIT7) ==BIT7))    //if true, 1.6 pressed
-        {
-
-
-            //delay_ms(10); //delay 10 ms
-
-            while(!((P1->IN & BIT7) ==BIT7)){} //will sit inside these two brackets until button is released
-            button_result=1;
-        }
-
-    return button_result;
-}
 void PORT1_IRQHandler()
 {
     //Button 1.6 is for Lights
