@@ -46,6 +46,9 @@ int PWMBlue=0; //global variable for blue PWM value
 int PWMGreen=0; //global variable for green PWM value
 int LEDFlag=1; //global variable for LEDFlag
 
+int GreenDoorFlag=0;
+int RedDoorFlag=0;
+
 
 
 
@@ -133,6 +136,8 @@ while(1)
                 PrintDoorOpen();
 
                 //turn on GREEN LED (P5.2), turn off RED LED (P5.5)
+                GreenDoorFlag=1;
+                RedDoorFlag=0;
                 P5->OUT &= ~(BIT5);
                 P5->OUT |= (BIT2);
 
@@ -156,6 +161,8 @@ while(1)
                 commandWrite(0x01); //clears LCD
                 PrintDoorClosed();
                 //turn off GREEN LED (P5.2), turn on RED LED (P5.5)
+                GreenDoorFlag=0;
+                RedDoorFlag=1;
                 P5->OUT |= (BIT5);
                 P5->OUT &= ~(BIT2);
 
@@ -429,6 +436,16 @@ void PORT1_IRQHandler()
     if(P1->IFG & BIT6)
 //    if(buttonP16_pressed())
     {
+        if(RedDoorFlag==1)
+        {
+            P5->OUT ^= (BIT5);
+
+        }
+
+        if(GreenDoorFlag==1)
+        {
+            P5->OUT ^= BIT2;
+        }
         if(LEDFlag==1)
         {
             P1 -> IFG &= ~BIT6;
@@ -436,10 +453,11 @@ void PORT1_IRQHandler()
             TIMER_A1->CCR[4] = 0; //RED LED off
             TIMER_A1->CCR[2] = 0; //BLUE LED off
             TIMER_A1->CCR[3] = 0; //Green LED off
-            P5->OUT ^= (BIT5);
-            P5->OUT ^= (BIT2);
+
 
         }
+
+
         else //if(LEDFlag==0)
         {
             P1 -> IFG &= ~BIT6;
@@ -447,8 +465,7 @@ void PORT1_IRQHandler()
             TIMER_A1->CCR[4] = PWMRed * 10 - 1;  // RED LED on at previous Duty Cycle
             TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  //BLUE LED on at previous Duty Cycle
             TIMER_A1->CCR[3] = PWMGreen * 10 - 1;  //Green LED on at previous Duty Cycle
-            P5->OUT ^= (BIT5);
-            P5->OUT ^= (BIT2);
+
         }
     }
     //if(buttonP17_pressed())
@@ -1117,4 +1134,3 @@ void error_message(void)
 
 
 }
-
