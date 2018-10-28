@@ -1,3 +1,4 @@
+//Initializes essential libraries for the program
 #include "msp.h"
 #include "msp432.h"
 #include <stdio.h>
@@ -11,9 +12,11 @@
  *  Assignment: Midterm Project
  *
  **************************/
+
+//Initializes systick timer function
 void SysTick_Init(void);
 
-
+//Initializes functions necessary to facilitate LCD functionality 
 void LCD_init(void);
 void delay_micro(unsigned microsec);
 void delay_ms (unsigned ms);
@@ -24,6 +27,7 @@ void commandWrite(uint8_t command);
 void dataWrite(uint8_t data);
 void PrintMenu(void);
 
+//Initializes functions of FSM for DOOR, MOTOR, RED LED, GREEN LED, BLUE LED
 void PrintMenu(void);
 void DoorSubmenu(void);
 void PrintDoorOpen(void);
@@ -36,6 +40,7 @@ void PrintBLUE(void);
 void error_message(void);
 void PinEnables(void);
 
+//Initializes functions to accept and return keypad entry values
 int read_keypad();
 void write_result(int value);
 int collect_input(int value);
@@ -46,12 +51,12 @@ int PWMBlue=0; //global variable for blue PWM value
 int PWMGreen=0; //global variable for green PWM value
 int LEDFlag=1; //global variable for LEDFlag
 
-int GreenDoorFlag=0;
-int RedDoorFlag=0;
+int GreenDoorFlag=0; //global variable for green led
+int RedDoorFlag=0; //global variable for red led
 
 
 
-
+//Delcares and defines states of FSM
 enum states{
     DEFAULT,//Default state
 
@@ -68,28 +73,30 @@ enum states{
     RED, //switch to RED, control PWM, RETURN TO LGIHTS
     GREEN,  //Switch to GREEN, control PWM, RETURN TO LGIHTS
     BLUE,  //Switch to BLUE, control PWM, RETURN TO LGIHTS
-
-
 };
 
 void main(void)
 {
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
-
-
-
-
+    
+    //Funciton calls initialization of pins
     PinEnables();
     int i=0;
 
+    //Function initializes the LCD
     LCD_init();
+    
+    //Both functions move the cursor to the first line and clears the screen for displaying text
     commandWrite(0x0F);
     commandWrite(0x0C);
 
+    //Sets first state of FSM to DEFAULT state
     enum states state= DEFAULT;
 
-
+       //This value ensures proper operation of the keypad
        int value=-1;
+    
+//While loop of the entire FSM
 while(1)
 {      switch (state)
         {
