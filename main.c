@@ -100,47 +100,70 @@ void main(void)
 while(1)
 {      switch (state)
         {
+            //Default State
             case DEFAULT:
+        
                 commandWrite(0x01); //clears LCD
-                PrintMenu();
-                value= read_keypad();
-                while(value==-1)
+                PrintMenu(); //Prints the LCD menu to the user
+                value= read_keypad(); //Accepts the incoming value of the keypad selected by the user
+        
+                while(value==-1) //if value is -1 the keypad stays in its default state, accepting values from the user
                 {
                     value= read_keypad();
                 }
-                if(value!=-1)
+        
+                if(value!=-1)//If the value is not -1. IE a button is pressed by the user, that is between 1 and 3, a menu selection will be made.
                 {
                     //printf("%d", value);
+                    
+                    //If 1 is selected, FSM navigates to the DOOR menu
                     if(value == 1)
                         state= DOOR;
+                    
+                    //If 2 is selected, FSM navigates to the MOTOR menu
                     if(value== 2)
                         state= MOTOR;
+                    
+                    //If 3 is selected, FSM navigates to the LIGHTS menu
                     if(value== 3)
                         state= LIGHTS;
                 }
                 break;
+            
+            //DOOR state
             case DOOR:
+        
                 commandWrite(0x01); //clears LCD
-                DoorSubmenu();
-                value=read_keypad();
+                DoorSubmenu(); //calls the function to display the door submenu to the user
+                value=read_keypad(); //Accepts the incoming value of the keypad selected by the user
+        
                 while(value==-1)
                 {
-                    value=read_keypad();
+                    value=read_keypad(); //if value is -1 the keypad stays in its default state, accepting values from the user
                 }
+        
+                //If a value is selected, IE if the user selects a value from 1 to 2 the FSM will navigate to the according menu
                 if(value!=-1)
                 {
+                    //If 1 is pressed, the garage door will open
                     if(value==1)
                         state= OPEN;
+                    
+                    //If 2 is pressed, the garage door will close
                     if(value==2)
                         state=CLOSE;
+                    
+                    //If the asteric key is pressed, which is a value of 10, the user will return the FSM to the DEFAULT menu
                     if(value==10)
                         state=DEFAULT;
                 }
                 break;
 
+            //If the user selects 1, OPEN in the DOOR menu, the user will direct the FSM to this state
             case OPEN:
+        
                 commandWrite(0x01); //clears LCD
-                PrintDoorOpen();
+                PrintDoorOpen(); //prints to the user "DOOR OPEN"
 
                 //turn on GREEN LED (P5.2), turn off RED LED (P5.5)
                 GreenDoorFlag=1;
@@ -148,70 +171,101 @@ while(1)
                 P5->OUT &= ~(BIT5);
                 P5->OUT |= (BIT2);
 
-                //Door Open
+                //Door Open, sets pulse width modulation accordingly 
                 TIMER_A2->CCR[2] = 1500;
-
+                
+                //Accepts and stores values from the keypad
                 value=read_keypad();
+        
+                //While value is -1, keypad awaits input from the user
                 while(value==-1)
                 {
                     value=read_keypad();
                 }
+        
+                //If a value is selected, greater than -1, the door opens
                 if(value!=-1)
                 {
+                    //If an asterik key is pressed, a value of 10, the user is returned to the DOOR menu
                     if(value==10)
                         state=DOOR;
+                    
+                   //If the user selects a value that is anything other than 10, the state returns to OPEN
                     if(value!=10)
                         state= OPEN;
                 }
                 break;
+        
+            //If the user selects 2 in the door menu, the FSM will navigate to the CLOSE menu
             case CLOSE:
+        
                 commandWrite(0x01); //clears LCD
-                PrintDoorClosed();
+                PrintDoorClosed();//Prints to the user, "DOOR CLOSED"
+        
                 //turn off GREEN LED (P5.2), turn on RED LED (P5.5)
                 GreenDoorFlag=0;
                 RedDoorFlag=1;
                 P5->OUT |= (BIT5);
                 P5->OUT &= ~(BIT2);
 
-                //door close
+                //DOOR is closed, pulse width modulation is set accordingly
                 TIMER_A2->CCR[2] = 3000;
 
+                //Accepts and stores keypad values from the keypad
                 value=read_keypad();
+        
+                //While the value is -1 the program remains in a state accepting values
                 while(value==-1)
                 {
                     value=read_keypad();
                 }
+        
+                //If any value is pressed, the FSM will change accordingly 
                 if(value!=-1)
                 {
+                    //If an asteric is pressed the FSM will return to the door menu
                     if(value==10)
                         state=DOOR;
+                    
+                    //If a value is pressed other than an asteric key, the door will close
                     if(value!=10)
                         state= CLOSE;
                  }
                 break;
+        
+            //FSM is navigated to MOTOR menu
             case MOTOR:
                 commandWrite(0x01); //clears LCD
-                MotorSubmenu();
-                //PWM set
-                int PWM_DCmotor=0;
-                value=read_keypad();
+                MotorSubmenu(); //prints to the user the motor submenu
+       
+                int PWM_DCmotor=0; //PWM is set accordingly so that the motor remains off until the user selects a value
+        
+                value=read_keypad(); //Calls function to accept keypad presses from the user
 
-                PWM_DCmotor= get_value();
+                PWM_DCmotor= get_value(); //Sets the pulse width modulation value to the integer value entered by the user
 
-                if(PWM_DCmotor >=0 && PWM_DCmotor<=100)
+                if(PWM_DCmotor >=0 && PWM_DCmotor<=100) //This sets parameters so that the program will only accept values for the motor between 0 and 100
                 {
+                    //if the DC motor is set to zero then the program will stay at zero
                     if(PWM_DCmotor == 0)
                         TIMER_A2->CCR[1] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    
+                    //If any other value is entered that is greater than 0, the pulse width modulation will be set accordingly
                     else
                         TIMER_A2->CCR[1] = (PWM_DCmotor/100.0) * (37500);  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999.
                 }
 
+                //If a value is entered outside of 0 to 100 the program will display an error message to the user
                 else
                      error_message();
+        
+                //While nothing is pressed the keypad will wait for the user to enter a value
                 while(value==-1)
                    {
                       value=read_keypad();
                    }
+            
+                //If any value is entered greater than -1, the FSM will accept and store the values accordinly 
                 if(value!=-1)
                    {
                       if(value==10)
@@ -427,13 +481,6 @@ void PinEnables(void)
         P1->IE |= (BIT6|BIT7);
         P1->IES |= (BIT6|BIT7);
         NVIC_EnableIRQ(PORT1_IRQn);
-
-
-
-
-
-
-
 }
 
 void PORT1_IRQHandler()
