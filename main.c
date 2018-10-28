@@ -365,7 +365,6 @@ while(1)
                 value=read_keypad(); //Reads and stores any value from the user in VALUE
                 PWMBlue= get_value(); //Sets the pulse width modulation to the entry by the user
         
-        
                 if(PWMBlue >=0 && PWMBlue<=100)
                 {
                     if(PWMBlue == 0)
@@ -510,9 +509,9 @@ void PinEnables(void)
 
     //DOOR MOTOR CONFIGURATION AND TIMER
     //Configure 5.7 as Timer A2.2 output
-            P5->SEL0 |= (BIT7);
-            P5->SEL1 &= ~(BIT7);
-            P5->DIR |= (BIT7);
+    P5->SEL0 |= (BIT7);
+    P5->SEL1 &= ~(BIT7);
+    P5->DIR |= (BIT7);
 
     //Initializes both red led and green led
     TIMER_A2->CCR[0] = 30000-1; //This is the PWM period   NEED 20 MS   30000-1
@@ -538,6 +537,7 @@ void PinEnables(void)
     P1->IE |= (BIT6|BIT7);
     P1->IES |= (BIT6|BIT7);
     NVIC_EnableIRQ(PORT1_IRQn);
+    
 }
 
 //Interupt function for LED and DC Motor
@@ -548,16 +548,20 @@ void PORT1_IRQHandler()
     if(P1->IFG & BIT6)
 //    if(buttonP16_pressed())
     {
+        //If push button is pressed, OR Bit 5
         if(RedDoorFlag==1)
         {
             P5->OUT ^= (BIT5);
 
         }
 
+        //If push button is pressed, OR Bit 2
         if(GreenDoorFlag==1)
         {
             P5->OUT ^= BIT2;
         }
+        
+        //If push button is pressed, turn off RED, BLUE, and GREEN LED
         if(LEDFlag==1)
         {
             P1 -> IFG &= ~BIT6;
@@ -565,10 +569,7 @@ void PORT1_IRQHandler()
             TIMER_A1->CCR[4] = 0; //RED LED off
             TIMER_A1->CCR[2] = 0; //BLUE LED off
             TIMER_A1->CCR[3] = 0; //Green LED off
-
-
         }
-
 
         else //if(LEDFlag==0)
         {
@@ -651,8 +652,8 @@ void DoorSubmenu(void)
          dataWrite(line1[i]);
      }
 
-    commandWrite(0xC0);
-    delay_ms(100);
+    commandWrite(0xC0); //Prints to second line of LCD
+    delay_ms(100);//Delay
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -660,8 +661,8 @@ void DoorSubmenu(void)
         dataWrite(line2[i]);
     }
 
-     commandWrite(0x90);
-     delay_ms(100);
+     commandWrite(0x90); //Prints to third line of LCD
+     delay_ms(100);//Delay
     
      //Prints characters of Array
      for(i=0; i<16; i++)
@@ -672,11 +673,11 @@ void DoorSubmenu(void)
 
 }
 
-
+//Prints the motor submenu text to the user
 void MotorSubmenu(void)
 {
     commandWrite(0x01);
-    commandWrite(0x0C);
+    commandWrite(0x0C); //Prints to first line of LCD
     
     int i;
     char line1[]= "   Motor Menu    ";
@@ -688,8 +689,8 @@ void MotorSubmenu(void)
          dataWrite(line1[i]);
      }
 
-    commandWrite(0xC0);
-    delay_ms(100);
+    commandWrite(0xC0); //Prints to second line of LCD
+    delay_ms(100); //Delay
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -698,10 +699,11 @@ void MotorSubmenu(void)
     }
 }
 
+//Prints the Light submenu to the user
 void LightSubmenu(void)
 {
     commandWrite(0x01);
-    commandWrite(0x0C);
+    commandWrite(0x0C); //Prints to first line of LCD
     
     int i;
     char line1[]= "  Light Submenu    ";
@@ -715,16 +717,16 @@ void LightSubmenu(void)
          dataWrite(line1[i]);
      }
 
-    commandWrite(0xC0);
-    delay_ms(100);
+    commandWrite(0xC0); //Prints to second line of LCD
+    delay_ms(100); //Dealy
     
      //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line2[i]);
     }
-    commandWrite(0x90);
-    delay_ms(100);
+    commandWrite(0x90); //Prints to third line of LCD
+    delay_ms(100); //Delay
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -732,8 +734,8 @@ void LightSubmenu(void)
         dataWrite(line3[i]);
     }
 
-    commandWrite(0xD0);
-    delay_ms(100);
+    commandWrite(0xD0); //Prints to fourth line of LCD
+    delay_ms(100); //Delay
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -742,6 +744,7 @@ void LightSubmenu(void)
      }
 }
 
+//Prints text to the user for DOOR open options
 void PrintDoorOpen(void)
 {
     commandWrite(0x01);
@@ -756,7 +759,7 @@ void PrintDoorOpen(void)
     }
 }
 
-
+//Prints text to user for DOOR closed option
 void PrintDoorClosed(void)
 {
     commandWrite(0x01);
@@ -771,6 +774,7 @@ void PrintDoorClosed(void)
     }
 }
 
+//Prints the red led submenu to the user
 void PrintRED(void)
 {
     commandWrite(0x01);
@@ -785,7 +789,7 @@ void PrintRED(void)
         dataWrite(option[i]);
     }
     
-    commandWrite(0xC0);
+    commandWrite(0xC0); //Prints to second line of LCD
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -795,6 +799,7 @@ void PrintRED(void)
 
 }
 
+//Prints the BLUE led option menu to the user
 void PrintBLUE(void)
 {
     commandWrite(0x01);
@@ -809,7 +814,7 @@ void PrintBLUE(void)
         dataWrite(option[i]);
     }
     
-    commandWrite(0xC0);
+    commandWrite(0xC0); //Prints to second line of LCD
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -818,7 +823,7 @@ void PrintBLUE(void)
     }
 }
 
-
+//Prints the Green LED menu to the user
 void PrintGREEN(void)
 {
     commandWrite(0x01);
@@ -833,7 +838,7 @@ void PrintGREEN(void)
         dataWrite(option[i]);
     }
     
-    commandWrite(0xC0);
+    commandWrite(0xC0); //Prints to second line of LCD
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -842,12 +847,10 @@ void PrintGREEN(void)
      }
 }
 
-
 //This function goes through the entire initialization sequence as shown in Figure 4
 void LCD_init(void)
 {
     //P3->OUT &= ~BIT2;    //P3.2 is RS, set to 0 because sending command
-
 
     commandWrite(0x03);   //3 in HEX
     delay_ms(100);  //waits 100 ms
@@ -952,9 +955,9 @@ void dataWrite(uint8_t data)
     P3->OUT |= BIT2; //pulls RS pin HIGH (expects data)
     pushByte(data);
 
-
 }
 
+//Initalizes the systic timer 
 void SysTick_Init(void)
 {
     SysTick -> CTRL=0; //disable SysTick during setup
@@ -963,6 +966,7 @@ void SysTick_Init(void)
     SysTick -> CTRL= 0x00000005; //enable SysTIck, CPU clk, no interrupts
 }
 
+//fucntion that allows the user to enter keypad presses and debounces each keypad press
 int read_keypad()
 {
     int value = -1;
@@ -1130,6 +1134,7 @@ void reset(void)
     P4->DIR &= ~(BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7);
     P4->OUT |= (BIT1|BIT2|BIT3|BIT4|BIT5|BIT6|BIT7); // make the internal resistor pull up to 3.3V (default state is a 1 now)
 }
+
 //function that writes the value to the user
 void write_result(int result)
 {
@@ -1159,7 +1164,6 @@ void write_result(int result)
             }
     }
 
-
     if(result == 10) //If the formula returns a 10, this means the asterisk button has been pressed
     {
         //printf("Button Pressed:* \n");
@@ -1176,7 +1180,6 @@ void write_result(int result)
            //printf("Button Pressed:# \n");
 
        }
-
 
 }
 
@@ -1227,7 +1230,6 @@ if((value <=9) && (value >= 0))//If an entry is pressed 0-9, the number will be 
 
 }
 
-
 int get_value(void)
 {
     int value=0;
@@ -1256,6 +1258,7 @@ int get_value(void)
         return code;
 }
 
+//Prints an error message to the value when improperly entering a numerical value into the keypad
 void error_message(void)
 {
     int i=0;
@@ -1272,8 +1275,8 @@ void error_message(void)
         dataWrite(line1[i]);
      }
 
-    commandWrite(0xC0);
-    delay_ms(100);
+    commandWrite(0xC0);//Prints to second line of LCD
+    delay_ms(100); //Delay
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -1281,8 +1284,8 @@ void error_message(void)
         dataWrite(line2[i]);
     }
 
-    commandWrite(0x90);
-    delay_ms(100);
+    commandWrite(0x90); //Prints to third line of LCD
+    delay_ms(100); //Delay
     
      //Prints characters of Array
     for(i=0; i<16; i++)
@@ -1290,8 +1293,8 @@ void error_message(void)
         dataWrite(line3[i]);
     }
 
-    commandWrite(0xD0);
-    delay_ms(100);
+    commandWrite(0xD0); //Prints to third line of LCD
+    delay_ms(100); //Delay
     
      //Prints characters of Array
     for(i=0; i<16; i++)
