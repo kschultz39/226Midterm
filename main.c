@@ -445,6 +445,8 @@ while(1)
     }
 
 }
+
+//Function initializes all pins for various hardware components
 void PinEnables(void)
 {
 
@@ -492,6 +494,7 @@ void PinEnables(void)
     P7->DIR |= (BIT4|BIT5|BIT6);    // Set pins as  PWM output.
     P7->OUT &= ~(BIT4|BIT5|BIT6);
 
+    //Timer A
     TIMER_A1->CCR[0] = 999;  //1000 clocks = 0.333 ms.  This is the period of everything on Timer A1.  0.333 < 16.666 ms so the on/off shouldn't
                                  //be visible with the human eye.  1000 makes easy math to calculate duty cycle.  No particular reason to use 1000.
 
@@ -511,7 +514,7 @@ void PinEnables(void)
             P5->SEL1 &= ~(BIT7);
             P5->DIR |= (BIT7);
 
-            //Need to configure both red led and green led
+    //Initializes both red led and green led
     TIMER_A2->CCR[0] = 30000-1; //This is the PWM period   NEED 20 MS   30000-1
     TIMER_A2->CCTL[2] = 0xE0;   //CCR4 reset/set mode
     TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
@@ -527,16 +530,17 @@ void PinEnables(void)
     TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
 
     //BUTTON 1.6 and BUTTON 1.7 (Button 1.6 corresponds to lights, Button 1.7 corresponds to motor)
-        P1-> SEL0 &= ~(BIT6|BIT7);
-        P1 -> SEL1 &= ~(BIT6|BIT7);
-        P1 -> DIR &= ~(BIT6|BIT7);
-        P1 -> REN |= (BIT6|BIT7);
-        P1->OUT |= (BIT6|BIT7);
-        P1->IE |= (BIT6|BIT7);
-        P1->IES |= (BIT6|BIT7);
-        NVIC_EnableIRQ(PORT1_IRQn);
+    P1-> SEL0 &= ~(BIT6|BIT7);
+    P1 -> SEL1 &= ~(BIT6|BIT7);
+    P1 -> DIR &= ~(BIT6|BIT7);
+    P1 -> REN |= (BIT6|BIT7);
+    P1->OUT |= (BIT6|BIT7);
+    P1->IE |= (BIT6|BIT7);
+    P1->IES |= (BIT6|BIT7);
+    NVIC_EnableIRQ(PORT1_IRQn);
 }
 
+//Interupt function for LED and DC Motor
 void PORT1_IRQHandler()
 {
     //Button 1.6 is for Lights
@@ -586,51 +590,62 @@ void PORT1_IRQHandler()
 
 }
 
-
+//Function that prints main menu to user
 void PrintMenu(void)
 {
-    commandWrite(0x0C);
+    commandWrite(0x0C); //Prints to line 1 of LCD
     int i;
     char line1[]= "      Menu      ";
     char line2[]= "1. Door         ";
     char line3[]= "2. Motor        ";
     char line4[]= "3. Lights       ";
 
+     //Prints characters of Array
      for(i=0; i<16; i++)
      {
          dataWrite(line1[i]);
      }
 
-    commandWrite(0xC0);
-    delay_ms(100);
+    commandWrite(0xC0); //Prints to line 2 of LCD
+    delay_ms(100); //Delay
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line2[i]);
     }
 
-     commandWrite(0x90);
-     delay_ms(100);
+     commandWrite(0x90); //Prints to line 3 of LCD
+     delay_ms(100); //Delay
+    
+      //Prints characters of Array
      for(i=0; i<16; i++)
      {
          dataWrite(line3[i]);
      }
 
-     commandWrite(0xD0);
-     delay_ms(100);
+     commandWrite(0xD0); //Prints to line 4 of LCD
+     delay_ms(100); //Delay
+    
+      //Prints characters of Array
      for(i=0; i<16; i++)
      {
           dataWrite(line4[i]);
       }
 }
+
+//Function that prints Door Submenu to user
 void DoorSubmenu(void)
 {
     commandWrite(0x01);
-    commandWrite(0x0C);
+    commandWrite(0x0C); //Prints to first line of LCD
+    
     int i;
     char line1[]= "   Door Menu    ";
     char line2[]= "1. Door Open     ";
     char line3[]= "2. Door Closed      ";
 
+     //Prints characters of Array
      for(i=0; i<16; i++)
      {
          dataWrite(line1[i]);
@@ -638,6 +653,8 @@ void DoorSubmenu(void)
 
     commandWrite(0xC0);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line2[i]);
@@ -645,6 +662,8 @@ void DoorSubmenu(void)
 
      commandWrite(0x90);
      delay_ms(100);
+    
+     //Prints characters of Array
      for(i=0; i<16; i++)
      {
          dataWrite(line3[i]);
@@ -652,15 +671,18 @@ void DoorSubmenu(void)
 
 
 }
+
+
 void MotorSubmenu(void)
 {
     commandWrite(0x01);
     commandWrite(0x0C);
+    
     int i;
     char line1[]= "   Motor Menu    ";
     char line2[]= "Enter speed:    ";
 
-
+     //Prints characters of Array
      for(i=0; i<16; i++)
      {
          dataWrite(line1[i]);
@@ -668,6 +690,8 @@ void MotorSubmenu(void)
 
     commandWrite(0xC0);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line2[i]);
@@ -678,13 +702,14 @@ void LightSubmenu(void)
 {
     commandWrite(0x01);
     commandWrite(0x0C);
+    
     int i;
     char line1[]= "  Light Submenu    ";
     char line2[]= "1. Red LED           ";
     char line3[]= "2. Blue LED           ";
     char line4[]= "3. Green LED           ";
 
-
+     //Prints characters of Array
      for(i=0; i<16; i++)
      {
          dataWrite(line1[i]);
@@ -692,12 +717,16 @@ void LightSubmenu(void)
 
     commandWrite(0xC0);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line2[i]);
     }
     commandWrite(0x90);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line3[i]);
@@ -705,6 +734,8 @@ void LightSubmenu(void)
 
     commandWrite(0xD0);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line4[i]);
@@ -714,18 +745,26 @@ void LightSubmenu(void)
 void PrintDoorOpen(void)
 {
     commandWrite(0x01);
+    
     int i;
     char option[]= "    Door Open    ";
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
     }
 }
+
+
 void PrintDoorClosed(void)
 {
     commandWrite(0x01);
+    
     int i;
     char option[]= "  Door Closed   ";
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
@@ -735,14 +774,20 @@ void PrintDoorClosed(void)
 void PrintRED(void)
 {
     commandWrite(0x01);
+    
     int i;
     char option[]= "    Red LED     ";
     char prompt[]= "Enter Brightness";
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
     }
+    
     commandWrite(0xC0);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(prompt[i]);
@@ -753,30 +798,44 @@ void PrintRED(void)
 void PrintBLUE(void)
 {
     commandWrite(0x01);
+    
     int i;
     char option[]= "    Blue LED     ";
     char prompt[]= "Enter Brightness";
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
     }
+    
     commandWrite(0xC0);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(prompt[i]);
     }
 }
+
+
 void PrintGREEN(void)
 {
     commandWrite(0x01);
+    
     int i;
     char option[]= "    Green LED     ";
     char prompt[]= "Enter Brightness";
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(option[i]);
     }
+    
     commandWrite(0xC0);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(prompt[i]);
@@ -904,20 +963,10 @@ void SysTick_Init(void)
     SysTick -> CTRL= 0x00000005; //enable SysTIck, CPU clk, no interrupts
 }
 
-
-
-
-
-
-
-
 int read_keypad()
 {
-
-
     int value = -1;
-
-
+    
     P4-> OUT &= ~BIT3; ///sets column 0 to 0
     P4-> DIR |= BIT3;
     {
@@ -1088,6 +1137,7 @@ void write_result(int result)
     int j=0;
     char buffer[50];
     int pin[3];
+    
     pin[0]=0;
     pin[1]=0;
     pin[2]=0;
@@ -1130,8 +1180,6 @@ void write_result(int result)
 
 }
 
-
-
 //Function that collects and stores 4 digits into an array. The array is set up so that no matter how many buttons are pressed the returned
 // 4 digit array thats returned will always be the last 4 digits pressed. An asterick will return an invalid entry
 int collect_input(int value)
@@ -1172,7 +1220,6 @@ if((value <=9) && (value >= 0))//If an entry is pressed 0-9, the number will be 
     }
     pincode[2] = value;
 
-
 }
     //pin= (pincode[0]*100 + pincode[1]*10 + pincode[2]*1);
     //printf("PIN %d", pin);
@@ -1190,14 +1237,20 @@ int get_value(void)
 
     while(value!= 12)
             {
+        
             value = read_keypad(); //inputs the calculated value from the keypad into the int value to be used in other parts of the program.
+           
             write_result(value);//Will print the result to the user
+            
             code=collect_input(value); //stores the value to
+        
             }
 
     sprintf(buffer, "Input: %d%%          ", code);
 
     commandWrite(0xC0); //moves cursor to second line
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
             dataWrite(buffer[i]);
         return code;
@@ -1213,6 +1266,7 @@ void error_message(void)
 
     commandWrite(0x01);
 
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line1[i]);
@@ -1220,6 +1274,8 @@ void error_message(void)
 
     commandWrite(0xC0);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line2[i]);
@@ -1227,6 +1283,8 @@ void error_message(void)
 
     commandWrite(0x90);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line3[i]);
@@ -1234,11 +1292,11 @@ void error_message(void)
 
     commandWrite(0xD0);
     delay_ms(100);
+    
+     //Prints characters of Array
     for(i=0; i<16; i++)
     {
         dataWrite(line4[i]);
     }
-
-
 
 }
