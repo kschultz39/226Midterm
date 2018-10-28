@@ -268,71 +268,104 @@ while(1)
                 //If any value is entered greater than -1, the FSM will accept and store the values accordinly 
                 if(value!=-1)
                    {
+                      //If the asterik key is pressed, the user will return the FSM to the default state
                       if(value==10)
                           state=DEFAULT;
+                    
+                      //If any other key is pressed, the state will remain in MOTOR and accept commands accordingly
                       if(value!=10)
                           state= MOTOR;
                    }
                  break;
 
+            //State for LIGHTS
             case LIGHTS:
+        
                 commandWrite(0x01); //clears LCD
-                LightSubmenu();
-                value=read_keypad();
+                LightSubmenu(); //Prints to the user the light submenu
+                value=read_keypad(); //Keypad function accepts keypad presses and stores them to the value function
+        
+                //while nothing is pressed on the key pad, the program will await instructions
                 while(value==-1)
                 {
                     value=read_keypad();
                 }
+                
+                //If the user presses a key the FSM will change the state accordingly to the input provided the values are between 1 and 3.
                 if(value!=-1)
                 {
+                    //If 1 is pressed the FSM will navigate to the state for the Red LED
                     if(value==1)
                         state=RED;
+                    
+                    //If 2 is pressed the FSM will navigate to the state for the BLUE LED
                     if(value==2)
                         state=BLUE;
+                    
+                    //If 3 is pressed the FSM will navigate to the state for the Green LED
                     if(value==3)
                         state=GREEN;
+                    
+                    //if an asterik is pressed the user will return the FSM to the DEFAULT menu
                     if(value==10)
                         state=DEFAULT;
                 }
                 break;
+        
+             //FSM navigates to the RED state
              case RED:
+        
                 commandWrite(0x01); //clears LCD
-                PrintRED();
+                PrintRED(); //Prints to the user the RED LED menu options
                 //Get PWM Value
                 //Red PWM LED is P7.4 and TA1.4
+        
+                value=read_keypad(); //sets value to any keypad entry made by the user
 
-
-                value=read_keypad();
-
-                PWMRed= get_value();
+                PWMRed= get_value(); //Sets the pulse width modulation to the value entered by the user
+        
+                //Sets parameters so that the program will only accept values between 0 and 100
                 if(PWMRed >=0 && PWMRed<=100)
                 {
+                    //If a zero is entered, the pulse width modulation will be set to zero
                     if(PWMRed == 0)
                         TIMER_A1->CCR[4] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    
+                    //If a value is entered above 0 and under 101 the program will set the pulse width modulation accordingly 
                     else
                         TIMER_A1->CCR[4] = PWMRed * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999.
                 }
 
+                //If any other value is pressed besides values between 0 and 100, the user is met with an error message
                 else
                     error_message();
+        
+                //If nothing is pressed, the program will sit and wait for the user to enter a value
                 while(value==-1)
                 {
                     value=read_keypad();
                 }
+        
+                //If an asterik is pressed the program will return to the LIGHTS main menu
                 if(value!=-1)
                 {
                     if(value==10)
                         state=LIGHTS;
                 }
                 break;
+        
+            //State for the BLUE LED
             case BLUE:
+        
                 commandWrite(0x01); //clears LCD
-                PrintBLUE();
+                PrintBLUE(); //Prints to the user the BLUE LED menu
 
                 //Get PWM value
                 //Blue PWM LED is P7.6 and TA1.2
-                value=read_keypad();
-                PWMBlue= get_value();
+                value=read_keypad(); //Reads and stores any value from the user in VALUE
+                PWMBlue= get_value(); //Sets the pulse width modulation to the entry by the user
+        
+        
                 if(PWMBlue >=0 && PWMBlue<=100)
                 {
                     if(PWMBlue == 0)
@@ -340,39 +373,59 @@ while(1)
                     else
                         TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999
                 }
+                
+                //If any other value is pressd an error message will be displaye to the user
                 else
                     error_message();
+                
+                //If any other value is pressed, the value will be stored to value
                 while(value==-1)
                 {
                     value=read_keypad();
                 }
+                
+                //If an asterik is pressed, the user will be returned to the LIGHTS menu
                 if(value!=-1)
                 {
                     if(value==10)
                         state=LIGHTS;
                 }
                 break;
+        
+            //State for GREEN LED
             case GREEN:
+        
                 commandWrite(0x01); //clears LCD
-                PrintGREEN();
+                PrintGREEN(); //Prints GREEN LED menu to the user
 
                 //Get PWM value
                 //Green PWM LED is P7.5 and TA1.3
-                value=read_keypad();
-                PWMGreen= get_value();
+                value=read_keypad(); //stores keypad pressed from the user into value
+                PWMGreen= get_value(); //sets the pulse width modulation for the LED when the vlaue is entered 
+        
+                //Sets parameters so that only values between 0 and 100 will be accepted
                 if(PWMGreen >=0 && PWMGreen<=100)
                 {
+                    //If zero is entered, the pulse width modulation will be set to zero
                     if(PWMGreen == 0)
                         TIMER_A1->CCR[3] = 0; //0 needs to be set to 0 instead of 0 minus 1.
+                    
+                    //Pulse width modulation will be set to any value provided is is between 1 and less than 101.
                     else
                         TIMER_A1->CCR[3] = PWMGreen * 10 - 1;  // all other inputs scale by multiply by 10 and subtracting 1.  10% is 99, 50% is 499, 100% is 999
                 }
+        
+                //if the user enters a value greater than 100, an error message will display
                 else
                     error_message();
+        
+                //When nothing is pressed, the pogram will wait for keypad entries
                 while(value==-1)
                 {
                     value=read_keypad();
                 }
+        
+                //If an asterik is entered, a value of 10, the FSM will return to the LIGHTS State
                 if(value!=-1)
                 {
                     if(value==10)
@@ -380,6 +433,7 @@ while(1)
                 }
 
                 break;
+        
             /*state LIGHTSOFF:
             {
             }
