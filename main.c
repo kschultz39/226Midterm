@@ -10,6 +10,11 @@
  *  Instructor: Professor Zuidema
  *  Date: 10/22/18
  *  Assignment: Midterm Project
+ *  Descripiton: Midterm Project, Rev 2 
+ *  EGR 226 - Fall 2018 Introduction to Digital Logic Tools
+ *  Design a control system using a numeric Keypad and 16x4 LCD. 
+ *  The heart of this system will be the TI MSP432 Launchpad microcontroller board. 
+ *  The microcontroller will control the LCD display menu functions using keypad entry.
  *
  **************************/
 
@@ -536,6 +541,8 @@ void PinEnables(void)
     P1->OUT |= (BIT6|BIT7);
     P1->IE |= (BIT6|BIT7);
     P1->IES |= (BIT6|BIT7);
+    
+    //NVIC_Enable allows for the interrupt to be preformed
     NVIC_EnableIRQ(PORT1_IRQn);
     
 }
@@ -551,8 +558,8 @@ void PORT1_IRQHandler()
         //If push button is pressed, OR Bit 5
         if(RedDoorFlag==1)
         {
+            //OR's the bits at 5, turning on and off LED lights.
             P5->OUT ^= (BIT5);
-
         }
 
         //If push button is pressed, OR Bit 2
@@ -575,12 +582,15 @@ void PORT1_IRQHandler()
         {
             P1 -> IFG &= ~BIT6;
             LEDFlag=1;
+            
+            //Initializes all the timer A at CCR4 functions 
             TIMER_A1->CCR[4] = PWMRed * 10 - 1;  // RED LED on at previous Duty Cycle
             TIMER_A1->CCR[2] = PWMBlue * 10 - 1;  //BLUE LED on at previous Duty Cycle
             TIMER_A1->CCR[3] = PWMGreen * 10 - 1;  //Green LED on at previous Duty Cycle
 
         }
     }
+    
     //if(buttonP17_pressed())
     if(P1->IFG & BIT7)
     {
@@ -615,8 +625,8 @@ void PrintMenu(void)
     {
         dataWrite(line2[i]);
     }
-
-     commandWrite(0x90); //Prints to line 3 of LCD
+    
+     commandWrite(0x90); //Prints to line 3 of the LCD
      delay_ms(100); //Delay
     
       //Prints characters of Array
@@ -638,7 +648,7 @@ void PrintMenu(void)
 //Function that prints Door Submenu to user
 void DoorSubmenu(void)
 {
-    commandWrite(0x01);
+    commandWrite(0x01); //Clears the LCD screen
     commandWrite(0x0C); //Prints to first line of LCD
     
     int i;
@@ -669,7 +679,6 @@ void DoorSubmenu(void)
      {
          dataWrite(line3[i]);
      }
-
 
 }
 
@@ -858,13 +867,11 @@ void LCD_init(void)
     delay_micro(200);   //waits 200 microseconds
     commandWrite(0x03); //3 in HEX
     delay_ms(100);  //waits 100 ms
-
-
+    
     commandWrite(0x02); //2 in HEX
     delay_micro(100); //waits 100 microseconds
     commandWrite(0x02); //2 in HEX
     delay_micro(100); ///waits 100 microseconds
-
 
     commandWrite(0x08); //8 in HEX
     delay_micro(100); //waits 100 microseconds
@@ -889,6 +896,7 @@ void delay_micro(unsigned microsec)
     while((SysTick -> CTRL & 0x00010000) ==0);
 
 }
+
 //uses the SysTick timer peripheral to generate a delay in milliseconds
 //function must be able to generate a delay of at least 60 ms
 void delay_ms (unsigned ms)
@@ -900,6 +908,7 @@ void delay_ms (unsigned ms)
     while((SysTick -> CTRL & 0x00010000) ==0);
 
 }
+
 //Sequence the Enable (E) pin as shown in Figure 6
 void PulseEnablePin(void)
 {
@@ -912,6 +921,7 @@ void PulseEnablePin(void)
     P6->OUT &= ~BIT4; //sets enable pin to LOW
     delay_micro(100);
 }
+
 //Pushes 1 nibble onto the data pins and pulses the Enable pin
 void pushNibble (uint8_t nibble)
 {
@@ -938,6 +948,7 @@ void pushByte(uint8_t byte)
     delay_micro(100);
 
 }
+
 //write one byte of COMMAND by calling the pushByte() function with the COMMAND parameter
 void commandWrite(uint8_t command)
 {
@@ -949,6 +960,7 @@ void commandWrite(uint8_t command)
     pushByte(command);
     delay_ms(100);
 }
+
 //writes one byte of DATA by calling the pushByte() function within the DATA parameter
 void dataWrite(uint8_t data)
 {
@@ -1173,8 +1185,6 @@ void write_result(int result)
             dataWrite(buffer[i]);
     }
 
-
-
     if(result == 12) //If the formula returns a 12, the pound sign will be returned.
        {
            //printf("Button Pressed:# \n");
@@ -1209,10 +1219,12 @@ int collect_input(int value)
         pincode[1]=0;
         pincode[2]=0;
     }
+    
     if(value== 10) //If the Asteric Symbol is pressed, nothing will be returned
     {
         printf("\nINVALID ENTRY\n");
     }
+    
 if((value <=9) && (value >= 0))//If an entry is pressed 0-9, the number will be stored in the program.
 {
     int i;
@@ -1230,6 +1242,7 @@ if((value <=9) && (value >= 0))//If an entry is pressed 0-9, the number will be 
 
 }
 
+//Function that retreives the value from the keypad
 int get_value(void)
 {
     int value=0;
