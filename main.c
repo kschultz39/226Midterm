@@ -4,6 +4,67 @@
 #include <stdio.h>
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "msp.h"
+
+
+/**
+ * main.c
+ */
+void main(void)
+{
+	WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;		// stop watchdog timer
+
+	// Configure 5.7 as Timer A2.2 output
+	    P5->SEL0 |= (BIT7);
+	    P5->SEL1 &= ~(BIT7);
+	    P5->DIR |= (BIT7);
+
+	    //Need to configure both red led and green led
+TIMER_A2->CCR[0] = 30000-1; //This is the PWM period   NEED 20 MS   30000-1
+TIMER_A2->CCTL[2] = 0xE0;   //CCR4 reset/set mode
+TIMER_A2->CTL  = 0b0000001001010100;    //use SMCLK, count up, clear TAOR register
+
+	    while(1)
+	    {
+	     int PWM;
+
+	        PWM = 1;
+
+
+	        if(PWM == 1)
+	                   {
+
+	                              TIMER_A2->CCR[2] = 3000;//need 2 ms duty cyle   3000
+
+	                   }
+
+__delay_cycles(10000);
+
+	        PWM = 2;
+
+	        //rotate to 90 degree
+	        if(PWM == 2)
+	        {
+
+	            TIMER_A2->CCR[2] = 1500;//need 20 ms duty cyle, 0 is 1 ms 1500
+
+	        }
+ __delay_cycles(10000);
+	    }
+}
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 /**************************
  *  Authors: Kelly Schultz and Nathan Gruber
  *  Class: EGR 226 902
