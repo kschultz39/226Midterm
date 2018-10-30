@@ -3,7 +3,7 @@
 #include "msp432.h"
 #include <stdio.h>
 
-/**************************
+/****************************************************************************************************************
  *  Authors: Kelly Schultz and Nathan Gruber
  *  Class: EGR 226 902
  *  Instructor: Professor Zuidema
@@ -15,7 +15,31 @@
  *  The heart of this system will be the TI MSP432 Launchpad microcontroller board. 
  *  The microcontroller will control the LCD display menu functions using keypad entry.
  *
- **************************/
+ *  GENERAL WIRING READ ME:
+ *
+ *      In wiring the cicruit for this project please pay special attention to several things.
+ *
+ *      LED'S
+ *      Please pay special attention to the polality of each LED. Wiring each LED with repect to the annode and cathode
+ *      in correct direction of the currrent is crutial for correct operation. 
+ *
+ *       Please pay attention to the correct resistor needed for each LED:
+ *
+ *       RED:
+ *       GREEN:
+ *       BLUE:
+ *      
+ *      DC MOTOR:
+ *       To ensure proper operation of the DC motor, several adittional steps must be taken to eliminate feed back through out the circuit.
+ *       
+ *       1. Make note of the interference circuit drawn in the wiring schematic, this must be incorporated to eliminate DC motor noise.
+ *       
+ *       2. If the interference circuit provides negative results, wire the DC motor to an alternate power source, separate of the MSP432 periphreal power.
+ *
+ *      SERVO MOTOR:
+ *       While, wiring is relatively straightforward, take care to power this motor from the 5V MSP432 pins, NOT 3.3.
+ *      
+ ****************************************************************************************************************/
 
 //Initializes systick timer function
 void SysTick_Init(void);
