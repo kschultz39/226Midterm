@@ -25,9 +25,9 @@
  *
  *       Please pay attention to the correct resistor needed for each LED:
  *
- *       RED:
- *       GREEN:
- *       BLUE:
+ *       RED: 140 Ohm Resistor
+ *       GREEN: 100 Ohm Resistor
+ *       BLUE: 100 Ohm Resistor
  *      
  *      DC MOTOR:
  *       To ensure proper operation of the DC motor, several adittional steps must be taken to eliminate feed back through out the circuit.
