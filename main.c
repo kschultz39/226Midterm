@@ -82,8 +82,6 @@ int LEDFlag=1; //global variable for LEDFlag
 int GreenDoorFlag=0; //global variable for green led
 int RedDoorFlag=0; //global variable for red led
 
-
-
 //Delcares and defines states of FSM
 enum states{
     DEFAULT,//Default state
