@@ -41,6 +41,112 @@
  *      
  ****************************************************************************************************************/
 
+
+include "msp.h"
+#include "math.h"
+#include <stdio.h>
+
+/**
+ * Author: Nathan Gruber and Kelly Schultz, colaborative effort due to lack of board from Midterm Project.
+ *  Class: EGR 226 902
+ *  Instructor: Professor Zuidema
+ *  Date:10/23/18
+ *  Assignment: Lab 8 Pre-lab
+ *  Description:  Write a basic C program to carry out the initialization steps of ADC
+ *                and to display the raw ADC sample value and the converted voltage value of the
+ *                potentiometer on CCS console.
+ *
+ *Attention Professor: Please note that part of this code is referenced from our MSP432 Introduction to micro-controller text book.
+ *
+ */
+
+//Initalizing Sys Timers
+void SysTick_Init(void)
+{
+    SysTick -> CTRL = 0;            //disable SysTick During setup
+    SysTick -> LOAD = 0x00FFFFFF;   //maximum reload value
+    SysTick -> VAL = 0;             //any write to current value clears it
+    SysTick -> CTRL = 0x00000005;    //enable SysTick, CPU clk, no interrupts
+}
+
+//Initalizing Sys Timers
+void SysTick_delay(uint16_t delay)
+{
+    SysTick -> LOAD = ((delay*3000) - 1);  // 1ms count down to zero
+    SysTick -> VAL = 0;                    // any write to CVR clears it
+                                           // and COUNTFLAG in CSR
+ // Wait for flag to be SET (Timeout happened)
+    while ((SysTick -> CTRL & 0x00010000) == 0);
+}
+
+
+void main(void)
+{
+    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;     // stop watchdog timer
+
+    SysTick_Init(); //Initialize SysTick Timer
+
+    int result;
+
+    ADC14->CTL0 = 0x00000010;  // power on and disabled during configuration
+    ADC14->CTL0 |= 0x04080300; //S/H pulse mode, sysclk, 32 sample clock, software trigger
+    ADC14->CTL1 = 0x00000020;  //12-bit resolution, should we use 14 as specified in class?
+    ADC14->MCTL[5] = 5;        //A5 input, single-ended, Vref-AVCC
+
+    P5->SEL1 |= (BIT0);  //configure P5.0 for A5, this will then be attached to the 10k external Pot
+    P5->SEL0 |= (BIT0);
+
+    ADC14->CTL1 |= 0x00050000;  //convert for mem reg 5
+    ADC14->CTL0 |= 2;           //enable ADC after configuration
+
+    while(1)
+    {
+        ADC14->CTL0 |= 1;  //Start conversion
+        while (!ADC14->IFGR0);  // wait till conversion completes  read is ADC14IFGRO
+        result = ADC14->MEM[5];  //read conversion result, STORES TO MEM LOCATION 5
+
+        float voltage;
+
+        voltage = ((3.3 / 4096) * result);  //function that will convert 12-bit resolution output into a voltage reading depending on the position of the potentiometer
+
+        printf("Voltage is %lf VDC  ", voltage);
+
+        SysTick_delay(300);
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+
 //Initializes systick timer function
 void SysTick_Init(void);
 
